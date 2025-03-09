@@ -1,2 +1,28 @@
-on:
+name: Build documentation and checks coverage
+
+on: #quando é que estas Actions irão correr!
+  pull_request:
+    branches:
+      - solution
+  push:
+    branches:
+      - documentation-ga
+
 jobs:
+  docs-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@4.2.2
+      - name: Setup Java JDK
+        uses: actions/setup-java@4.7.0
+        with:
+          distribution: 'oracle'
+          java-version: '23'
+      - name: Build using Maven
+        run: mvn package
+      - name: Uploads documentation(javadocs) artifact
+        uses: actions/upload-artifact@4.6.0
+        with:
+          name: test-artifact
+          path: target/site/jacoco/
