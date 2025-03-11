@@ -26,14 +26,14 @@ jobs:
         run: mvn package
       - name: Terminate batch job (Windows)
         if: matrix.os == 'windows-latest'
-        run: Y
+        run: echo Y | Y
       - name: Uploads tests artifact
         uses: actions/upload-artifact@v4.6.0
         with:
-          name: test-artifact-${{ github.run_number }}
+          name: test-artifact-${{ matrix.os }}-${{ github.run_number }}
           path: target/site/jacoco/
       - name: Uploads documentation(javadocs) artifact
         uses: actions/upload-artifact@v4.6.0
         with:
-          name: documentation-artifact-${{ github.run_number }}
+          name: documentation-artifact-${{ matrix.os }}-${{ github.run_number }}
           path: target/apidocs/
