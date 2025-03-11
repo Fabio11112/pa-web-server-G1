@@ -27,10 +27,10 @@ jobs:
       - name: Uploads tests artifact
         uses: actions/upload-artifact@v4.6.0
         with:
-          name: test-artifact
+          name: test-artifact-${{ github.run_number }}
           path: target/site/jacoco/
       - name: Uploads documentation(javadocs) artifact
         uses: actions/upload-artifact@v4.6.0
         with:
-          name: documentation-artifact
+          name: documentation-artifact-${{ github.run_number }}
           path: target/apidocs/
