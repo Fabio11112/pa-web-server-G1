@@ -10,11 +10,14 @@ on: #quando é que estas Actions irão correr!
 
 jobs:
   docs-coverage:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
-      - name: Setup Java JDK
+      - name: Setup Java JDK on ${{ matrix.os }}
         uses: actions/setup-java@v4.7.0
         with:
           distribution: 'oracle'
@@ -26,3 +29,8 @@ jobs:
         with:
           name: test-artifact
           path: target/site/jacoco/
+      - name: Uploads documentation(javadocs) artifact
+        uses: actions/upload-artifact@v4.6.0
+        with:
+          name: documentation-artifact
+          path: target/apidocs/
