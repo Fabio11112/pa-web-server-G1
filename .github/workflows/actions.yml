@@ -8,12 +8,14 @@ on: #quando é que estas Actions irão correr!
     branches:
       - main
 
+strategy:
+  matrix:
+    os: [ ubuntu-latest, windows-latest, macos-latest ]
+  runs-on: ${{ matrix.os }}
+runs-on: ${{ matrix.os }}
+
 jobs:
   docs-coverage:
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -24,7 +26,7 @@ jobs:
           java-version: '23'
       - name: Build using Maven
         run: mvn package
-      - name: Uploads documentation(javadocs) artifact
+      - name: Uploads Test artifact
         uses: actions/upload-artifact@v4.6.0
         with:
           name: test-artifact
