@@ -10,7 +10,7 @@ import java.nio.file.Paths;
  */
 public class MainHTTPServerThread extends Thread {
 
-    private static final String SERVER_ROOT = ""; // Define by user
+    private static final String SERVER_ROOT = "html"; // Define by user
     private final int port;
     private ServerSocket server;
 
