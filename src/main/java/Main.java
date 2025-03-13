@@ -1,15 +1,28 @@
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 public class Main {
-    public static void main(String[] args) {
-        LockInitialiser lockInitialiser = new LockInitialiser("html");
-        TreeMap<String, Lock> locks = lockInitialiser.createLocks("sites");
-        MainHTTPServerThread s = new MainHTTPServerThread(8888);
-        s.start();
+    public static void main( String[] args ) {
+        Runnable[] tasks = new Runnable[5];
+        LockInitializer lockInitializer = new LockInitializer( "html" );
+        ThreadPool pool = new ThreadPool(tasks.length, tasks.length, 5000 );
+
+
+
+        for ( int i = 0; i < 2; i++ ) {
+            tasks[i] = new MainHTTPServerThread( 8888 );
+            pool.execute( tasks[i] );
+        }
+
+        pool.shutdown();
+
         try {
-            s.join();
-        } catch (InterruptedException e) {
+
+            if ( !pool.awaitTermination( 60, TimeUnit.SECONDS ) ) {
+                System.err.println( "ThreadPool did not terminate within the timeout." );
+            }
+        } catch ( InterruptedException e ) {
             e.printStackTrace();
         }
     }
