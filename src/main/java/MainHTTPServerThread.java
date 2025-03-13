@@ -3,14 +3,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.TreeMap;
+import java.util.concurrent.locks.Lock;
 
 /**
  * A simple HTTP server that listens on a specified port.
  * It serves files from a predefined server root directory.
  */
 public class MainHTTPServerThread extends Thread {
-
-    private static final String SERVER_ROOT = "html"; // Define by user
+    TreeMap<String, Lock> locks;
+    private static final String SERVER_ROOT = "sites"; // Define by user
     private final int port;
     private ServerSocket server;
 
@@ -21,6 +23,9 @@ public class MainHTTPServerThread extends Thread {
      */
     public MainHTTPServerThread(int port) {
         this.port = port;
+
+        LockInitialiser lockInitialiser = new LockInitialiser("html");
+        locks = lockInitialiser.createLocks("sites");
     }
 
     /**
@@ -73,38 +78,16 @@ public class MainHTTPServerThread extends Thread {
             while (true) {
                 try (Socket client = server.accept();
                      BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                     OutputStream clientOutput = client.getOutputStream()) {
+                     OutputStream clientOutput = client.getOutputStream())
+                {
 
                     System.out.println("New client connected: " + client);
 
-                    // Read and parse the HTTP request
-                    StringBuilder requestBuilder = new StringBuilder();
-                    String line;
-                    while (!(line = br.readLine()).isBlank()) {
-                        requestBuilder.append(line).append("\r\n");
-                    }
-
-                    String request = requestBuilder.toString();
-                    String[] tokens = request.split(" ");
-                    if (tokens.length < 2) {
-                        System.err.println("Invalid request received.");
+                    //Reads and parses the HTTP Request
+                    if(!clientRequest(clientOutput, br))
                         continue;
-                    }
-                    String route = tokens[1];
-                    System.out.println("Request received: " + request);
 
-                    // Serve the requested file
-                    byte[] content = readBinaryFile(SERVER_ROOT + route);
 
-                    // Send HTTP response headers
-                    clientOutput.write("HTTP/1.1 200 OK\r\n".getBytes());
-                    clientOutput.write("Content-Type: text/html\r\n".getBytes());
-                    clientOutput.write("\r\n".getBytes());
-
-                    // Send response body
-                    clientOutput.write(content);
-                    clientOutput.write("\r\n\r\n".getBytes());
-                    clientOutput.flush();
                 } catch (IOException e) {
                     System.err.println("Error handling client request.");
                     e.printStackTrace();
@@ -113,6 +96,61 @@ public class MainHTTPServerThread extends Thread {
         } catch (IOException e) {
             System.err.println("Server error: Unable to start on port " + port);
             e.printStackTrace();
+        }
+    }
+
+
+    private String[] getTokens(BufferedReader br) throws IOException {
+        try {
+            StringBuilder requestBuilder = new StringBuilder();
+            String line;
+            while (!(line = br.readLine()).isBlank()) {
+                requestBuilder.append(line).append("\r\n");
+            }
+
+            String request = requestBuilder.toString();
+            String[] tokens = request.split(" ");
+            if (tokens.length < 2) {
+                System.err.println("Invalid request received.");
+                return null;
+            }
+
+            return tokens;
+        }
+        catch(IOException e){
+            throw e;
+        }
+    }
+
+    private boolean clientRequest(OutputStream clientOutput, BufferedReader br) throws IOException {
+                 // Serve the requested file
+        try {
+
+            String[] tokens = getTokens(br);
+            if (tokens == null || tokens.length == 0)
+                return false;
+
+            String route = tokens[1];
+            String routePath = SERVER_ROOT + route;
+            routePath = routePath.replace("/", "\\");
+
+            locks.get(routePath).lock();
+            clientOutput.write(readBinaryFile(routePath));
+            byte[] content = readBinaryFile(routePath);
+
+            // Send HTTP response headers
+            clientOutput.write("HTTP/1.1 200 OK\r\n".getBytes());
+            clientOutput.write("Content-Type: text/html\r\n".getBytes());
+            clientOutput.write("\r\n".getBytes());
+
+            // Send response body
+            clientOutput.write(content);
+            clientOutput.write("\r\n\r\n".getBytes());
+            clientOutput.flush();
+            return true;
+        }
+        catch(IOException e){
+            throw e;
         }
     }
 }
