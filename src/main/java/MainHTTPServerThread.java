@@ -20,12 +20,11 @@ public class MainHTTPServerThread {
      *
      * @param port The port number on which the server will listen.
      */
-    public MainHTTPServerThread( int port, ThreadPool pool, String SERVER_ROOT) {
+    public MainHTTPServerThread( int port, ThreadPool pool, String SERVER_ROOT, LockFiles pathPagesMap ) {
         this.port = port;
         this.pool = pool;
         this.SERVER_ROOT = SERVER_ROOT;
-
-        pathPagesMap = new LockFiles( "html", SERVER_ROOT );
+        this.pathPagesMap = pathPagesMap;
     }
 
 
