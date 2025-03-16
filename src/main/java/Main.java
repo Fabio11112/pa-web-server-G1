@@ -1,29 +1,12 @@
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-
 public class Main {
     public static void main( String[] args ) {
         Runnable[] tasks = new Runnable[5];
-        LockInitializer lockInitializer = new LockInitializer( "html" );
-        ThreadPool pool = new ThreadPool(tasks.length, tasks.length, 5000 );
+        String directory = "sites";
+        String extension = "html";
+        LockFiles lockFiles = new LockFiles( extension, directory );
 
-
-
-        for ( int i = 0; i < 2; i++ ) {
-            tasks[i] = new MainHTTPServerThread( 8888 );
-            pool.execute( tasks[i] );
-        }
-
-        pool.shutdown();
-
-        try {
-
-            if ( !pool.awaitTermination( 60, TimeUnit.SECONDS ) ) {
-                System.err.println( "ThreadPool did not terminate within the timeout." );
-            }
-        } catch ( InterruptedException e ) {
-            e.printStackTrace();
-        }
+        ThreadPool pool = new ThreadPool(tasks.length, tasks.length, 5000 , 10);
+        MainHTTPServerThread server = new MainHTTPServerThread(8888, pool, directory);
+        server.startServer();
     }
 }

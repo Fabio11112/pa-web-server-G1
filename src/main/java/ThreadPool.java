@@ -1,3 +1,4 @@
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -15,13 +16,13 @@ public class ThreadPool extends ThreadPoolExecutor {
      * @param maxPoolSize Maximum amount of threads to keep in the thread pool
      * @param keepAliveTime Maximum amount of time to keep idle thread alive in milliseconds
      */
-    public ThreadPool(int corePoolSize, int maxPoolSize, int keepAliveTime) {
+    public ThreadPool(int corePoolSize, int maxPoolSize, int keepAliveTime, int maxQueueThreadSize) {
         super(
                 corePoolSize,
                 maxPoolSize,
                 keepAliveTime,
                 TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>(4) {
+                new LinkedBlockingQueue<Runnable>(maxQueueThreadSize) {
                 });
     }
 

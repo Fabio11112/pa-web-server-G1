@@ -3,9 +3,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.locks.Lock;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,15 +12,15 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test class for LockInitialiser
  */
 @DisplayName("Lock Initialiser")
-public class LockInitializerTest {
+public class LockFilesTest {
 
 
     @Test
     @DisplayName("Test the correct creation of locks")
     void testCreateLocks() {
 
-        LockInitializer lockInitialiser = new LockInitializer("html");
-        ConcurrentLinkedQueue<String> list = lockInitialiser.createConcurrentQueue("sites");
+        LockFiles lockInitialiser = new LockFiles("html", "sites");
+        ConcurrentLinkedQueue<String> list = lockInitialiser.("sites");
         assertNotNull(list);
 
         try (Stream<Path> stream = Files.walk(Paths.get("sites"))) {
