@@ -1,11 +1,12 @@
 public class Main {
-    public static void main(String[] args) {
-        MainHTTPServerThread s = new MainHTTPServerThread(8888);
-        s.start();
-        try {
-            s.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public static void main( String[] args ) {
+        Runnable[] tasks = new Runnable[5];
+        String directory = "sites";
+        String extension = "html";
+        LockFiles lockFiles = new LockFiles( extension, directory );
+
+        ThreadPool pool = new ThreadPool(tasks.length, tasks.length, 5000 , 10);
+        MainHTTPServerThread server = new MainHTTPServerThread(8888, pool, directory);
+        server.startServer();
     }
 }
