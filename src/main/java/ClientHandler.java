@@ -86,7 +86,7 @@ public class ClientHandler implements Runnable{
                 else if ( Files.exists( path ) )
                 { //not html but exists
                     if( Files.isDirectory( path ) ) { //and is directory
-                        Path indexPath = Paths.get( path + "/index.html ");
+                        Path indexPath = Paths.get( path + "/index.html");
                         if (Files.exists(indexPath)) { //and index.html of directory exists
                             String page = (indexPath.toString()).replace("\\", "/");
                             content = readBinaryFile(page);
