@@ -15,6 +15,7 @@ public class ThreadPool extends ThreadPoolExecutor {
      * @param corePoolSize Minimum amount of threads to keep in the thread pool
      * @param maxPoolSize Maximum amount of threads to keep in the thread pool
      * @param keepAliveTime Maximum amount of time to keep idle thread alive in milliseconds
+     * @param maxQueueThreadSize Maximum amount of threads to keep in queue
      */
     public ThreadPool(int corePoolSize, int maxPoolSize, int keepAliveTime, int maxQueueThreadSize) {
         super(

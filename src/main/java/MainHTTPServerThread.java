@@ -19,6 +19,10 @@ public class MainHTTPServerThread {
      * Constructor to initialize the HTTP server thread with a specified port.
      *
      * @param port The port number on which the server will listen.
+     * @param pool the ThreadPool
+     * @param SERVER_ROOT the root directory for the web application
+     * @param pathPagesMap the LockFiles variable to lock the pages
+     *
      */
     public MainHTTPServerThread( int port, ThreadPool pool, String SERVER_ROOT, LockFiles pathPagesMap ) {
         this.port = port;
