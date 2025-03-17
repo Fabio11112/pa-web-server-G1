@@ -37,7 +37,7 @@ public class LockFilesTest {
 
         assertAll(
                 () -> assertNotNull(locks),
-                () -> assertTrue(locks.exists(path))
+                () -> assertTrue(locks.exists(Paths.get(path)))
         );
     }
 
@@ -54,14 +54,14 @@ public class LockFilesTest {
 
         assertAll(
                 () -> assertNotNull(locks),
-                () -> assertFalse(locks.exists(path))
+                () -> assertFalse(locks.exists(Paths.get(path)))
         );
     }
 
     @Test
     @DisplayName("Test if a file is locked")
     void testFileIsLocked() throws InterruptedException {
-        String path = "sites\\404.html";
+        Path path = Paths.get("sites\\404.html");
         locks.lock(path);
 
         Lock lock = locks.getLock(path);
@@ -82,7 +82,7 @@ public class LockFilesTest {
     @Test
     @DisplayName("Test if a file is unlocked")
     void testFileIsUnlocked() throws InterruptedException {
-        String path = "sites\\404.html";
+        Path path = Paths.get("sites\\404.html");
         locks.lock(path);
         locks.unlock(path);
         Lock lock = locks.getLock(path);
@@ -101,7 +101,7 @@ public class LockFilesTest {
     @Test
     @DisplayName("Test getLock method")
     void testGetLock() {
-        String path = "sites\\404.html";
+        Path path = Paths.get("sites\\404.html");
         locks.lock(path);
         Lock lock = locks.getLock(path);
         assertNotNull(lock, "The lock should not be null");

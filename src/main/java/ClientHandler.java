@@ -90,14 +90,14 @@ public class ClientHandler implements Runnable{
             boolean endsWithHtml = routePath.endsWith( ".html" );
             Path path = Paths.get( routePath );
 
-            String pageLockedPath = "";
+            Path pageLockedPath = null;
 
             try {
                 if (endsWithHtml) {
-                    if (lockFiles.exists(routePath))
+                    if (lockFiles.exists(path))
                     { //if the page html exists itself
-                        lockFiles.lock(routePath);
-                        pageLockedPath = routePath;
+                        lockFiles.lock(path);
+                        pageLockedPath = path;
                         content = readBinaryFile(routePath); //loads the .html page
                     }
                     else
@@ -112,8 +112,8 @@ public class ClientHandler implements Runnable{
                         if (Files.exists(indexPath)) { //and index.html of directory exists
 
                             endsWithHtml = true;
-                            lockFiles.lock(indexPath.toString());
-                            pageLockedPath = indexPath.toString();
+                            lockFiles.lock(indexPath);
+                            pageLockedPath = indexPath;
 
                             content = readBinaryFile(indexPath.toString());
                             System.out.println("Page route: " + indexPath);
@@ -133,8 +133,9 @@ public class ClientHandler implements Runnable{
             {
                 System.out.println("path not found : " + routePath);
                 endsWithHtml = true;
-                lockFiles.lock(PATH404);
-                pageLockedPath = PATH404;
+                Path path404 = Paths.get(PATH404);
+                lockFiles.lock(path404);
+                pageLockedPath = path404;
                 content = readBinaryFile(PATH404);
             }
 
