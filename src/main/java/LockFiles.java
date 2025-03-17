@@ -48,10 +48,10 @@ public class LockFiles {
      * Creates the ConcurrentHashMap with the paths of the files that has the extension given
      *
      * @param directoryPath The path of the directory that will be checked
-     * @return The ConcurrentHashMap with the paths of the files that has the extension given.
-     * If there is an error, it will return an empty ConcurrentHashMap
+     *
+     * If there is a IOException, it prints the stack trace
      */
-    private ConcurrentHashMap<String, Lock> createLocks( String directoryPath ) {
+    private void createLocks( String directoryPath ) {
         Path dir = Paths.get( directoryPath );
 
         try( Stream<Path> stream = Files.walk( dir ) ){
@@ -65,7 +65,6 @@ public class LockFiles {
         catch( IOException e )
         {
             e.printStackTrace();
-            return new ConcurrentHashMap<>();
         }
 
     }

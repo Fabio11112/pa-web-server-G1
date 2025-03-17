@@ -12,6 +12,14 @@ public class ClientHandler implements Runnable{
     private final Socket client;
     private final String path404;
 
+
+    /**
+     * Constructor for the ClientHandler class
+     * @param client The client that will be handled
+     * @param lockFiles The lockFiles object that will be used
+     * @param SERVER_ROOT The root of the server
+     * @param PATH404 The path of the 404 page
+     */
     public ClientHandler(Socket client,
                          LockFiles lockFiles,
                          String SERVER_ROOT) {
@@ -23,25 +31,21 @@ public class ClientHandler implements Runnable{
     }
 
     private String[] getTokens( BufferedReader br ) throws IOException {
-        try {
-            StringBuilder requestBuilder = new StringBuilder();
-            String line;
-            while ( !( line = br.readLine() ).isBlank() ) {
-                requestBuilder.append( line ).append( "\r\n" );
-            }
 
-            String request = requestBuilder.toString();
-            String[] tokens = request.split( " " );
-            if (tokens.length < 2) {
-                System.err.println("Invalid request received.");
-                return null;
-            }
+        StringBuilder requestBuilder = new StringBuilder();
+        String line;
+        while ( !( line = br.readLine() ).isBlank() ) {
+            requestBuilder.append( line ).append( "\r\n" );
+        }
 
-            return tokens;
+        String request = requestBuilder.toString();
+        String[] tokens = request.split( " " );
+        if (tokens.length < 2) {
+            System.err.println("Invalid request received.");
+            return null;
         }
-        catch( IOException e ){
-            throw e;
-        }
+
+        return tokens;
     }
 
     private void clientRequest(){
@@ -70,6 +74,8 @@ public class ClientHandler implements Runnable{
 
             boolean endsWithHtml = routePath.endsWith( ".html" );
             Path path = Paths.get( routePath );
+
+            String pageLockedPath = "";
 
             try {
                 if (endsWithHtml) {
