@@ -26,20 +26,33 @@ public class LockFiles {
         createLocks(directoryPath);
     }
 
+    /**
+     * Checks if the path inserted is in the map
+     * @param path The path that will be checked
+     * @return True if the path is in the map, false otherwise
+     */
     public boolean exists(String path) {
         return map.containsKey(path);
     }
 
+    /**
+     * Locks the file that has the path given
+     * @param path The path of the file that will be locked
+     */
     public void lock (String path) {
         if(exists(path)) {
-            map.get(path).lock();
+            getLock(path).lock();
         }
 
     }
 
+    /**
+     * Unlocks the file that has the path given
+     * @param path The path of the file that will be unlocked
+     */
     public void unlock (String path) {
         if(exists(path)) {
-            map.get(path).unlock();
+            getLock(path).unlock();
         }
 
     }
@@ -48,10 +61,10 @@ public class LockFiles {
      * Creates the ConcurrentHashMap with the paths of the files that has the extension given
      *
      * @param directoryPath The path of the directory that will be checked
-     * @return The ConcurrentHashMap with the paths of the files that has the extension given.
-     * If there is an error, it will return an empty ConcurrentHashMap
+     *
+     * If there is a IOException, it prints the stack trace
      */
-    private ConcurrentHashMap<String, Lock> createLocks( String directoryPath ) {
+    private void createLocks( String directoryPath ) {
         Path dir = Paths.get( directoryPath );
 
         try( Stream<Path> stream = Files.walk( dir ) ){
@@ -60,12 +73,16 @@ public class LockFiles {
                     map.put( path.toString(), new ReentrantLock() );
                 }
             });
-            return map;
+
+            for(String value: map.keySet())
+            {
+                System.out.println( value );
+            }
+
         }
         catch( IOException e )
         {
             e.printStackTrace();
-            return new ConcurrentHashMap<>();
         }
 
     }
@@ -94,8 +111,13 @@ public class LockFiles {
 
     }
 
-
-
-
+    /**
+     * Returns the lock of the path given
+     * @param path The path of the file that has the lock
+     * @return The lock of the path given
+     */
+    public Lock getLock(String path) {
+        return map.get(path);
+    }
 
 }

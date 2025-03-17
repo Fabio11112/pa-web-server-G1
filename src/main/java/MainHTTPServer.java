@@ -1,17 +1,16 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
 /**
  * A simple HTTP server that listens on a specified port.
  * It serves files from a predefined server root directory.
  */
-public class MainHTTPServerThread {
+public class MainHTTPServer {
     private final LockFiles pathPagesMap;
-    private final String SERVER_ROOT;// Define by user
+    private final String SERVER_ROOT;
+    private final String PATH404;// Define by user
     private final int port;
     private final ThreadPool pool;
 
@@ -21,16 +20,17 @@ public class MainHTTPServerThread {
      * @param port The port number on which the server will listen.
      * @param pool the ThreadPool
      * @param SERVER_ROOT the root directory for the web application
+     * @param PATH404 the path of the 404 page
      * @param pathPagesMap the LockFiles variable to lock the pages
      *
      */
-    public MainHTTPServerThread( int port, ThreadPool pool, String SERVER_ROOT, LockFiles pathPagesMap ) {
+    public MainHTTPServer(int port, ThreadPool pool, String SERVER_ROOT, String PATH404, LockFiles pathPagesMap ) {
         this.port = port;
         this.pool = pool;
         this.SERVER_ROOT = SERVER_ROOT;
         this.pathPagesMap = pathPagesMap;
+        this.PATH404 = PATH404;
     }
-
 
 
     /**
@@ -54,11 +54,8 @@ public class MainHTTPServerThread {
     }
 
     /**
-     * Starts the HTTP server and listens for incoming client requests.
-     * Processes HTTP GET requests and serves files from the defined server root directory.
+     * Starts the server and listens for incoming client connections.
      */
-
-
     public void startServer() {
         try(ServerSocket server = new ServerSocket(port)) {
 
@@ -71,7 +68,7 @@ public class MainHTTPServerThread {
                     Socket client = server.accept();
 
                     //Reads and parses the HTTP Request
-                    pool.execute(new ClientHandler(client, pathPagesMap, SERVER_ROOT));
+                    pool.execute(new ClientHandler(client, pathPagesMap, SERVER_ROOT, PATH404));
 
 
                 } catch ( IOException e ) {
