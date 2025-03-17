@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ClientHandler implements Runnable{
@@ -9,6 +10,7 @@ public class ClientHandler implements Runnable{
     private final LockFiles lockFiles;
     private final String SERVER_ROOT;
     private final Socket client;
+    private final String path404;
 
     public ClientHandler(Socket client,
                          LockFiles lockFiles,
@@ -17,6 +19,7 @@ public class ClientHandler implements Runnable{
         this.lockFiles = lockFiles;
         this.SERVER_ROOT = SERVER_ROOT;
         this.client = client;
+        this.path404 = SERVER_ROOT + "/404.html";
     }
 
     private String[] getTokens( BufferedReader br ) throws IOException {
@@ -66,17 +69,46 @@ public class ClientHandler implements Runnable{
 
 
             boolean endsWithHtml = routePath.endsWith( ".html" );
-            if( endsWithHtml) {
-                if (  lockFiles.exists( routePath ) ) {
-                    //clientOutput.write(readBinaryFile( routePath ));
+            Path path = Paths.get( routePath );
 
-                    /* logic for mutexes over here */
-
-                } else {
-                    throw new FileNotFoundException( routePath );
+            try {
+                if (endsWithHtml) {
+                    if (lockFiles.exists(routePath))
+                    { //if the page html exists itself
+                        lockFiles.lock(routePath);
+                        content = readBinaryFile(routePath); //loads the .html page
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException("File not found: " + routePath);//not found
+                    }
+                }
+                else if ( Files.exists( path ) )
+                { //not html but exists
+                    if( Files.isDirectory( path ) ) { //and is directory
+                        Path indexPath = Paths.get( path + "/index.html ");
+                        if (Files.exists(indexPath)) { //and index.html of directory exists
+                            String page = (indexPath.toString()).replace("\\", "/");
+                            content = readBinaryFile(page);
+                            System.out.println("Page route: " + page);
+                        } else { //index.html of directory does NOT exist
+                            throw new FileNotFoundException("File not found: " + path + "/index.html");
+                        }
+                    }
+                    else //exists but is not a Directory neither a .html file
+                    {
+                        content = readBinaryFile(path.toString());
+                    }
+                } else { //does NOT exist
+                    throw new FileNotFoundException("File not found: " + routePath);
                 }
             }
-            content = readBinaryFile( routePath );
+            catch(FileNotFoundException e)
+            {
+                System.out.println("path not found : " + routePath);
+                content = readBinaryFile(path404);
+            }
+
 
 
             if ( clientOutput != null ) {
@@ -94,6 +126,7 @@ public class ClientHandler implements Runnable{
                 client.close();
                 if(endsWithHtml) {
                     Thread.sleep(15000);
+                    lockFiles.unlock(routePath);
                     //Thread.sleep for testing threads
                 }
 
