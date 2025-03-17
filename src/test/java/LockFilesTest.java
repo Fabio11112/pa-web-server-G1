@@ -35,6 +35,7 @@ public class LockFilesTest {
     @DisplayName("Tests if the paths are in the lockFiles")
     void testCreateLocks_HasSitesInMap(String path) {
 
+        System.out.println(locks);
         assertAll(
                 () -> assertNotNull(locks),
                 () -> assertTrue(locks.exists(Paths.get(path)))

@@ -73,12 +73,6 @@ public class LockFiles {
                     map.put( path, new ReentrantLock() );
                 }
             });
-
-            for(Path value: map.keySet())
-            {
-                System.out.println( value );
-            }
-
         }
         catch( IOException e )
         {
@@ -118,6 +112,13 @@ public class LockFiles {
      */
     public Lock getLock(Path path) {
         return map.get(path);
+    }
+
+
+    @Override
+    public String toString()
+    {
+        return map.toString();
     }
 
 }
