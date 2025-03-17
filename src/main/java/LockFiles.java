@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  * Represents the locks of each file that has the same extension
  */
 public class LockFiles {
-    private final ConcurrentHashMap<String, Lock> map = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Path, Lock> map = new ConcurrentHashMap<>();
     private final String extension;
 
 
@@ -28,10 +28,10 @@ public class LockFiles {
 
     /**
      * Checks if the path inserted is in the map
-     * @param path The path that will be checked
+     * @param path path that will be checked
      * @return True if the path is in the map, false otherwise
      */
-    public boolean exists(String path) {
+    public boolean exists(Path path) {
         return map.containsKey(path);
     }
 
@@ -39,7 +39,7 @@ public class LockFiles {
      * Locks the file that has the path given
      * @param path The path of the file that will be locked
      */
-    public void lock (String path) {
+    public void lock (Path path) {
         if(exists(path)) {
             getLock(path).lock();
         }
@@ -50,7 +50,7 @@ public class LockFiles {
      * Unlocks the file that has the path given
      * @param path The path of the file that will be unlocked
      */
-    public void unlock (String path) {
+    public void unlock (Path path) {
         if(exists(path)) {
             getLock(path).unlock();
         }
@@ -70,11 +70,11 @@ public class LockFiles {
         try( Stream<Path> stream = Files.walk( dir ) ){
             stream.forEach( path -> {
                 if( !Files.isDirectory( ( path ) ) && hasSameExtension( path.toFile(), extension ) ){
-                    map.put( path.toString(), new ReentrantLock() );
+                    map.put( path, new ReentrantLock() );
                 }
             });
 
-            for(String value: map.keySet())
+            for(Path value: map.keySet())
             {
                 System.out.println( value );
             }
@@ -116,7 +116,7 @@ public class LockFiles {
      * @param path The path of the file that has the lock
      * @return The lock of the path given
      */
-    public Lock getLock(String path) {
+    public Lock getLock(Path path) {
         return map.get(path);
     }
 
