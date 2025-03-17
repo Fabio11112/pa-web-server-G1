@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .product {
+            display: flex;
+            gap: 20px;
+        }
+
+        .product-image {
+            flex: 1;
+        }
+
+        .product-image img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .product-details {
+            flex: 2;
+        }
+
+        .product-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 28px;
+            color: #b12704;
+            margin-bottom: 20px;
+        }
+
+        .product-description {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .add-to-cart {
+            background-color: #ffd814;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .add-to-cart:hover {
+            background-color: #f7ca00;
+        }
+
+        .reviews {
+            margin-top: 40px;
+        }
+
+        .reviews h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .review {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+
+        .review:last-child {
+            border-bottom: none;
+        }
+
+        .review-author {
+            font-weight: bold;
+        }
+
+        .review-rating {
+            color: #ffa41c;
+            margin-bottom: 5px;
+        }
+
+        .review-text {
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="product">
+        <div class="product-image">
+            <img src="https://via.placeholder.com/400x400" alt="Product Image">
+        </div>
+        <div class="product-details">
+            <h1 class="product-title">Wireless Bluetooth Headphones</h1>
+            <div class="product-price">$99.99</div>
+            <p class="product-description">
+                Enjoy high-quality sound with these wireless Bluetooth headphones. Features include noise cancellation, 20-hour battery life, and a comfortable fit.
+            </p>
+            <button class="add-to-cart">Add to Cart</button>
+        </div>
+    </div>
+
+    <div class="reviews">
+        <h2>Customer Reviews</h2>
+        <div class="review">
+            <div class="review-author">John Doe</div>
+            <div class="review-rating">★★★★★</div>
+            <div class="review-text">Great headphones! The sound quality is amazing, and they're very comfortable to wear.</div>
+        </div>
+        <div class="review">
+            <div class="review-author">Jane Smith</div>
+            <div class="review-rating">★★★★☆</div>
+            <div class="review-text">Good value for the price. The battery life is excellent, but the noise cancellation could be better.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript for Add to Cart Button
+    const addToCartButton = document.querySelector('.add-to-cart');
+    addToCartButton.addEventListener('click', () => {
+        alert('Added to Cart!');
+    });
+</script>
+</body>
+</html>
