@@ -20,6 +20,7 @@ public class MainHTTPServer {
      * @param port The port number on which the server will listen.
      * @param pool the ThreadPool
      * @param SERVER_ROOT the root directory for the web application
+     * @param PATH404 the path of the 404 page
      * @param pathPagesMap the LockFiles variable to lock the pages
      *
      */
@@ -30,7 +31,6 @@ public class MainHTTPServer {
         this.pathPagesMap = pathPagesMap;
         this.PATH404 = PATH404;
     }
-
 
 
     /**
@@ -54,11 +54,8 @@ public class MainHTTPServer {
     }
 
     /**
-     * Starts the HTTP server and listens for incoming client requests.
-     * Processes HTTP GET requests and serves files from the defined server root directory.
+     * Starts the server and listens for incoming client connections.
      */
-
-
     public void startServer() {
         try(ServerSocket server = new ServerSocket(port)) {
 

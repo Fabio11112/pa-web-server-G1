@@ -5,12 +5,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+
+/**
+ * Handler of the Client Requests
+ */
 public class ClientHandler implements Runnable{
 
     private final LockFiles lockFiles;
     private final String SERVER_ROOT;
     private final Socket client;
-    private final String path404;
+    private final String PATH404;
 
 
     /**
@@ -22,14 +26,22 @@ public class ClientHandler implements Runnable{
      */
     public ClientHandler(Socket client,
                          LockFiles lockFiles,
-                         String SERVER_ROOT) {
+                         String SERVER_ROOT,
+                         String PATH404) {
 
         this.lockFiles = lockFiles;
         this.SERVER_ROOT = SERVER_ROOT;
         this.client = client;
-        this.path404 = SERVER_ROOT + "/404.html";
+        this.PATH404 = PATH404;
     }
 
+    /**
+     * Get the tokens of the BufferedReader from the client Socket. Used for getting the URL, and consecutively
+     * the path of the page wanted
+     * @param br The BufferedReader from the client
+     * @return tokens of the BufferedReader
+     * @throws IOException When the BufferedReader is invalid
+     */
     private String[] getTokens( BufferedReader br ) throws IOException {
 
         StringBuilder requestBuilder = new StringBuilder();
@@ -48,6 +60,9 @@ public class ClientHandler implements Runnable{
         return tokens;
     }
 
+    /**
+     * Handles the client request
+     */
     private void clientRequest(){
 
         //instantiation of variables because of finally block
@@ -82,6 +97,7 @@ public class ClientHandler implements Runnable{
                     if (lockFiles.exists(routePath))
                     { //if the page html exists itself
                         lockFiles.lock(routePath);
+                        pageLockedPath = routePath;
                         content = readBinaryFile(routePath); //loads the .html page
                     }
                     else
@@ -92,11 +108,15 @@ public class ClientHandler implements Runnable{
                 else if ( Files.exists( path ) )
                 { //not html but exists
                     if( Files.isDirectory( path ) ) { //and is directory
-                        Path indexPath = Paths.get( path + "/index.html");
+                        Path indexPath = Paths.get( path + "\\index.html");
                         if (Files.exists(indexPath)) { //and index.html of directory exists
-                            String page = (indexPath.toString()).replace("\\", "/");
-                            content = readBinaryFile(page);
-                            System.out.println("Page route: " + page);
+
+                            endsWithHtml = true;
+                            lockFiles.lock(indexPath.toString());
+                            pageLockedPath = indexPath.toString();
+
+                            content = readBinaryFile(indexPath.toString());
+                            System.out.println("Page route: " + indexPath);
                         } else { //index.html of directory does NOT exist
                             throw new FileNotFoundException("File not found: " + path + "/index.html");
                         }
@@ -112,7 +132,10 @@ public class ClientHandler implements Runnable{
             catch(FileNotFoundException e)
             {
                 System.out.println("path not found : " + routePath);
-                content = readBinaryFile(path404);
+                endsWithHtml = true;
+                lockFiles.lock(PATH404);
+                pageLockedPath = PATH404;
+                content = readBinaryFile(PATH404);
             }
 
 
@@ -132,7 +155,7 @@ public class ClientHandler implements Runnable{
                 client.close();
                 if(endsWithHtml) {
                     Thread.sleep(15000);
-                    lockFiles.unlock(routePath);
+                    lockFiles.unlock(pageLockedPath);
                     //Thread.sleep for testing threads
                 }
 
@@ -170,6 +193,9 @@ public class ClientHandler implements Runnable{
         }
     }
 
+    /**
+     * Run method of the ClientHandler
+     */
     @Override
     public void run() {
         clientRequest();
