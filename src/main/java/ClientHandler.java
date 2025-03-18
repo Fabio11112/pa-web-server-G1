@@ -79,7 +79,7 @@ public class ClientHandler implements Runnable{
     private void clientRequest(){
 
         //instantiation of variables because of finally block
-        String routePath = "";
+        String routePath;
 
         try(BufferedReader br = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
             OutputStream clientOutput = client.getOutputStream()) {
