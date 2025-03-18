@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
  * A ThreadPool that will order the threads from the requests
  */
 public class ThreadPool extends ThreadPoolExecutor {
-    ThreadPoolExecutor threadPoolExecutor;
 
     /**
      * Constructor for the Thread Pool class

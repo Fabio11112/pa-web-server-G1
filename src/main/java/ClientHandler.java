@@ -4,7 +4,9 @@ import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
+import java.util.ArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.Semaphore;
 
 /**
  * Handler of the Client Requests
@@ -15,6 +17,10 @@ public class ClientHandler implements Runnable{
     private final String SERVER_ROOT;
     private final Socket client;
     private final String PATH404;
+    private final Lock bufferLock;
+    private final Semaphore itemsAvailable;
+    private final ArrayList<Log> buffer;
+
 
 
     /**
@@ -27,12 +33,19 @@ public class ClientHandler implements Runnable{
     public ClientHandler(Socket client,
                          LockFiles lockFiles,
                          String SERVER_ROOT,
-                         String PATH404) {
+                         String PATH404,
+                         Lock bufferLock,
+                         Semaphore itemsAvailable,
+                         ArrayList<Log> buffer) {
 
         this.lockFiles = lockFiles;
         this.SERVER_ROOT = SERVER_ROOT;
         this.client = client;
         this.PATH404 = PATH404;
+        this.itemsAvailable = itemsAvailable;
+        this.bufferLock = bufferLock;
+        this.buffer = buffer;
+
     }
 
     /**
@@ -126,6 +139,8 @@ public class ClientHandler implements Runnable{
                 } else { //does NOT exist
                     throw new FileNotFoundException("File not found: " + routePath);
                 }
+
+
             }
             catch(FileNotFoundException e)
             {
@@ -160,6 +175,12 @@ public class ClientHandler implements Runnable{
 
 
             }
+
+            Log log = new Log("GET", path, "200", "RESPONSE");
+            Runnable ProducerLogs = new ProducerLogs(buffer, bufferLock, itemsAvailable, log);
+            Thread producerLogsThread = new Thread(ProducerLogs);
+            producerLogsThread.start();
+
         }
         catch(InterruptedException e){
             e.printStackTrace();
