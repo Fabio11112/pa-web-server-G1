@@ -79,7 +79,7 @@ public class ClientHandler implements Runnable{
     private void clientRequest(){
 
         //instantiation of variables because of finally block
-        String routePath = "";
+        String routePath;
 
         try(BufferedReader br = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
             OutputStream clientOutput = client.getOutputStream()) {
@@ -152,34 +152,9 @@ public class ClientHandler implements Runnable{
                 content = readBinaryFile(PATH404);
             }
 
+            flushRequest(clientOutput, endsWithHtml, content, pageLockedPath);
 
-
-            if ( clientOutput != null ) {
-                // Send HTTP response headers
-
-
-                clientOutput.write( "HTTP/1.1 200 OK\r\n".getBytes() );
-                clientOutput.write( "Content-Type: text/html\r\n".getBytes() );
-                clientOutput.write( "\r\n".getBytes() );
-
-                // Send response body
-                clientOutput.write( content );
-                clientOutput.write( "\r\n\r\n".getBytes() );
-                clientOutput.flush();
-                client.close();
-                if(endsWithHtml) {
-                    Thread.sleep(15000);
-                    lockFiles.unlock(pageLockedPath);
-                    //Thread.sleep for testing threads
-                }
-
-
-            }
-
-            Log log = new Log("GET", path, "200", "RESPONSE");
-            Runnable ProducerLogs = new ProducerLogs(buffer, bufferLock, itemsAvailable, log);
-            Thread producerLogsThread = new Thread(ProducerLogs);
-            producerLogsThread.start();
+            sendLog("GET", path, "origin", 200);
 
         }
         catch(InterruptedException e){
@@ -211,6 +186,37 @@ public class ClientHandler implements Runnable{
             e.printStackTrace();
             return new byte[0];
         }
+    }
+
+    private void flushRequest(OutputStream clientOutput,
+                              boolean endsWithHtml,
+                              byte[] content,
+                              Path pageLockedPath) throws IOException, InterruptedException
+    {
+        if (clientOutput != null)
+        {
+            clientOutput.write("HTTP/1.1 200 OK\r\n".getBytes());
+            clientOutput.write("Content-Type: text/html\r\n".getBytes());
+            clientOutput.write("\r\n".getBytes());
+
+            // Send response body
+            clientOutput.write(content);
+            clientOutput.write("\r\n\r\n".getBytes());
+            clientOutput.flush();
+            client.close();
+            if (endsWithHtml) {
+                //Thread.sleep for testing threads
+                Thread.sleep(15000);
+                lockFiles.unlock(pageLockedPath);
+            }
+        }
+    }
+
+    private void sendLog (String method, Path path, String origin, int response) {
+        Log log = new Log(method, path, origin, response);
+        Runnable ProducerLogs = new ProducerLogs(buffer, bufferLock, itemsAvailable, log);
+        Thread producerLogsThread = new Thread(ProducerLogs);
+        producerLogsThread.start();
     }
 
     /**

@@ -10,9 +10,9 @@ public class Log {
     private final String method;
     private final Path path;
     private final String origin;
-    private final String response;
+    private final int response;
 
-    public Log(String method, Path path, String origin, String response) {
+    public Log(String method, Path path, String origin, int response) {
         this.timestamp = LocalDateTime.now().format(formatter);
         this.method = method;
         this.path = path;
