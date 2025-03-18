@@ -24,7 +24,11 @@ public class MainHTTPServer {
      * @param pathPagesMap the LockFiles variable to lock the pages
      *
      */
-    public MainHTTPServer(int port, ThreadPool pool, String SERVER_ROOT, String PATH404, LockFiles pathPagesMap ) {
+    public MainHTTPServer(int port,
+                          ThreadPool pool,
+                          String SERVER_ROOT,
+                          String PATH404,
+                          LockFiles pathPagesMap ) {
         this.port = port;
         this.pool = pool;
         this.SERVER_ROOT = SERVER_ROOT;

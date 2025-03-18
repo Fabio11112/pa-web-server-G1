@@ -193,7 +193,7 @@ public class ClientHandler implements Runnable{
     }
 
     /**
-     * Run method of the ClientHandler
+     * Run method of the ClientHandler. It handles the client Request given
      */
     @Override
     public void run() {
