@@ -29,10 +29,12 @@ replay_pid*
 
 # Custom rules
 .idea
-# Ignore all the files and directories in the server directory except server.config.example
+# Ignore all the files and directories in the sites directory except server.config.example
 sites/*
 !sites/server.config.example
 !sites/favicon.ico
 !sites/404.html
 !sites/pages
+
+log/*
 
