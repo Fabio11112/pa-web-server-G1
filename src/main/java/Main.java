@@ -26,6 +26,7 @@ public class Main {
 
         Runnable consumerLogs = new ConsumerLogs(logPath, buffer, bufferLock, semaphore);
         Thread consumerLogsThread = new Thread(consumerLogs);
+        consumerLogsThread.start();
 
         LockFiles lockFiles = new LockFiles( extension, directory );
 
@@ -34,7 +35,7 @@ public class Main {
 
         server.startServer();
 
-        consumerLogsThread.start();
+
 
     }
 }

@@ -26,12 +26,15 @@ public class ProducerLogs implements Runnable {
             bufferLock.lock();
             buffer.add(log);
             System.out.println("Producer " + Thread.currentThread().getId() + " produced: " + log.toString());
-            bufferLock.unlock();
             itemsAvailable.release();
         }
         catch (Exception e)
         {
             e.printStackTrace();
+        }
+        finally
+        {
+            bufferLock.unlock();
         }
 
     }

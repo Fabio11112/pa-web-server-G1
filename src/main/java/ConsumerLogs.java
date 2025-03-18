@@ -42,18 +42,23 @@ public class ConsumerLogs implements Runnable{
                 path = Paths.get(logPath);
                 File file = path.toFile();
 
-                FileWriter writer = new FileWriter(file);
-                if (itemsAvailable.tryAcquire(5, TimeUnit.SECONDS)) {
-                    bufferLock.lock();
-                    if (!buffer.isEmpty()) {
-                        Log log = buffer.remove(0);
-                        writer.write(log.toString());
-                        System.out.println("Consumer " + Thread.currentThread().getId() + " consumed: " + log.toString());
-                    }
+                try(FileWriter writer = new FileWriter(file, true)) {
+                    if (itemsAvailable.tryAcquire(5, TimeUnit.SECONDS)) {
+                        try {
+                            bufferLock.lock();
+                            if (!buffer.isEmpty()) {
+                                Log log = buffer.remove(0);
+                                writer.write(log.toString()+"\n");
+                                writer.flush();
+                                System.out.println("Consumer " + Thread.currentThread().getId() + " consumed: " + log.toString());
+                            }
+                        } finally {
+                            bufferLock.unlock();
+                        }
 
-                    bufferLock.unlock();
-                } else {
-                    System.out.println("Consumer " + Thread.currentThread().getId() + " cannot consumer buffer is locked");
+                    } else {
+                        System.out.println("Consumer " + Thread.currentThread().getId() + " cannot consumer buffer is locked");
+                    }
                 }
 
             }
@@ -69,6 +74,7 @@ public class ConsumerLogs implements Runnable{
 
     @Override
     public void run(){
+        System.out.println("Consumer " + Thread.currentThread().getId() + " started");
         consumeLogs();
     }
 }

@@ -22,13 +22,13 @@ public class Log {
 
     @Override
     public String toString() {
-        return new JSONObject()
-                .put("timestamp", timestamp)
-                .put("method", method)
-                .put("route", path.toString())
-                .put("origin", origin)
-                .put("HTTP response status", response)
-                .toString();
+        return "{"+
+                "\n\"timestamp\":\"" + timestamp + "\",\n" +
+                "\"method\":\"" + method + "\",\n" +
+                "\"route\":\"" + path + "\",\n" +
+                "\"origin\":\"" + origin + "\",\n" +
+                "\"HTTP response status\":\"" + response + "\"\n"+
+                "}\n";
     }
 
 }
