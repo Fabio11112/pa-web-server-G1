@@ -1,0 +1,16 @@
+{
+"timestamp":"2025-03-18 15:14:16",
+"method":"GET",
+"route":"sites\favicon.ico",
+"origin":"200",
+"HTTP response status":"RESPONSE"
+}
+
+{
+"timestamp":"2025-03-18 15:14:31",
+"method":"GET",
+"route":"sites",
+"origin":"200",
+"HTTP response status":"RESPONSE"
+}
+

@@ -1,7 +1,10 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 /**
  * A simple HTTP server that listens on a specified port.
@@ -13,6 +16,9 @@ public class MainHTTPServer {
     private final String PATH404;// Define by user
     private final int port;
     private final ThreadPool pool;
+    private final Lock bufferLock;
+    private final Semaphore itemsAvailable;
+    private final ArrayList<Log> buffer;
 
     /**
      * Constructor to initialize the HTTP server thread with a specified port.
@@ -24,12 +30,24 @@ public class MainHTTPServer {
      * @param pathPagesMap the LockFiles variable to lock the pages
      *
      */
-    public MainHTTPServer(int port, ThreadPool pool, String SERVER_ROOT, String PATH404, LockFiles pathPagesMap ) {
+    public MainHTTPServer(int port,
+                          ThreadPool pool,
+                          String SERVER_ROOT,
+                          String PATH404,
+                          LockFiles pathPagesMap,
+                          ArrayList<Log> buffer,
+                          Lock bufferLock,
+                          Semaphore itemsAvailable
+    )
+    {
         this.port = port;
         this.pool = pool;
         this.SERVER_ROOT = SERVER_ROOT;
         this.pathPagesMap = pathPagesMap;
         this.PATH404 = PATH404;
+        this.buffer = buffer;
+        this.bufferLock = bufferLock;
+        this.itemsAvailable = itemsAvailable;
     }
 
 
@@ -68,7 +86,7 @@ public class MainHTTPServer {
                     Socket client = server.accept();
 
                     //Reads and parses the HTTP Request
-                    pool.execute(new ClientHandler(client, pathPagesMap, SERVER_ROOT, PATH404));
+                    pool.execute(new ClientHandler(client, pathPagesMap, SERVER_ROOT, PATH404, bufferLock, itemsAvailable, buffer ));
 
 
                 } catch ( IOException e ) {
