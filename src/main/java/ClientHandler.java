@@ -21,7 +21,9 @@ public class ClientHandler implements Runnable{
     private final Semaphore itemsAvailable;
     private final ArrayList<Log> buffer;
 
-
+    private final static int RESPONSE_OK = 200;
+    private final static int RESPONSE_NOT_FOUND = 404;
+    private final static int INTERNAL_SERVER_ERROR = 500;
 
     /**
      * Constructor for the ClientHandler class
@@ -84,61 +86,30 @@ public class ClientHandler implements Runnable{
         try(BufferedReader br = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
             OutputStream clientOutput = client.getOutputStream()) {
 
+            byte[] content;
+            boolean lockedHtmlPage;
+
             logClientConnection();
-
-
             routePath = getRoutePath(br);
 
             System.out.println( "Route: " + routePath );
-            byte[] content;
+            Path resourcePath = Paths.get( routePath );
+            resourcePath = Routing(resourcePath);
 
-            boolean endsWithHtml = routePath.endsWith( ".html" );
-            boolean fileLocked = false;
-            Path path = Paths.get( routePath );
+            lockedHtmlPage = lockHtmlPage(resourcePath);
+            content = readBinaryFile(resourcePath.toString());
 
+            flushRequest(clientOutput, content, resourcePath);
 
-            Path pageLockedPath = null;
-            try {
-                if (Files.exists(path)) {
-                    if (Files.isDirectory(path)) { //and is directory
-                        Path indexPath = Paths.get(path + "/index.html");
-                        if (Files.exists(indexPath) && lockFiles.lock(indexPath)) { //and index.html of directory exists
-                            //it verifies if the file exists, if it does, it locks the file and continues
-                            fileLocked = true;
-                            pageLockedPath = indexPath;
-                            content = readBinaryFile(indexPath.toString());
-                            System.out.println("Page route: " + indexPath);
-                        } else { //index.html of directory does NOT exist
-                            throw new FileNotFoundException("File not found: " + path + "/index.html");
-                        }
-                    } else if (endsWithHtml && lockFiles.lock(path)) {
-                        //if the page html exists itself
-                        fileLocked = true;
-                        pageLockedPath = path;
-                        content = readBinaryFile(routePath); //loads the .html page
-                    } else //if file exists but it is not a html file
-                    {
-                        content = readBinaryFile(routePath);
-                    }
-                } else {
-                    throw new FileNotFoundException("File not found: " + routePath);//not found
-                }
-
-
-            } catch (FileNotFoundException e) {
-                Path path404 = Paths.get(PATH404);
-                if (lockFiles.lock(path404)) {
-                    System.out.println("path not found : " + routePath);
-                    fileLocked = true;
-                    pageLockedPath = path404;
-                    content = readBinaryFile(PATH404);
-                } else {
-                    throw new InterruptedException("File not found: " + PATH404);
-                }
+            if (lockedHtmlPage) {
+                //Thread.sleep for testing threads
+                Thread.sleep(15000);
+                lockFiles.unlock(resourcePath);
             }
 
-            flushRequest(clientOutput, fileLocked, content, pageLockedPath);
-            sendLog("GET", path, "origin", 200);
+
+            int response = resourcePath.toString().equals(PATH404) ? RESPONSE_NOT_FOUND : RESPONSE_OK;
+            sendLog("GET", resourcePath, client.toString(), response);
 
         }
         catch(InterruptedException e){
@@ -173,7 +144,6 @@ public class ClientHandler implements Runnable{
     }
 
     private void flushRequest(OutputStream clientOutput,
-                              boolean fileLocked,
                               byte[] content,
                               Path pageLockedPath) throws IOException, InterruptedException
     {
@@ -188,11 +158,6 @@ public class ClientHandler implements Runnable{
             clientOutput.write("\r\n\r\n".getBytes());
             clientOutput.flush();
             client.close();
-            if (fileLocked) {
-                //Thread.sleep for testing threads
-                Thread.sleep(15000);
-                lockFiles.unlock(pageLockedPath);
-            }
         }
     }
 
@@ -216,35 +181,52 @@ public class ClientHandler implements Runnable{
         System.out.println("New client connected: " + client + "on Thread: " + Thread.currentThread().getId());
     }
 
-    private byte[] handleRequestedFile(String routePath) throws IOException, InterruptedException {
-        Path path = Paths.get(routePath);
-        boolean fileLocked = false;
-        Path pageLockedPath = null;
+    /**
+     * It routes the path of the page requested by the client.It will return the exact page if it was
+     * correctly inserted, or the index.html of the directory (if it exists) or the 404 page otherwise
+     *
+     * @param path The path of the page requested by the client. Or the 404 file if it do not exists
+     */
+    private Path Routing (Path path) {
+        try {
+            if(!Files.exists(path))
+                throw new FileNotFoundException("File not found: " + path + "/index.html");
 
-        if (!Files.exists(path)) {
-            throw new FileNotFoundException("File not found: " + routePath);
-        }
 
-        if (Files.isDirectory(path)) {
-            Path indexPath = path.resolve("index.html");
-            if (Files.exists(indexPath)) {
-                fileLocked = lockFiles.lock(indexPath);
-                pageLockedPath = indexPath;
-                return readBinaryFile(indexPath.toString());
+            Path indexPath = Paths.get(path + "/index.html");
+            if (Files.isDirectory(path)) { //and is directory
+
+                if(!Files.exists(indexPath))
+                    throw new FileNotFoundException("File not found: " + path + "/index.html");
+
+                System.out.println("Page route: " + indexPath);
+                return indexPath;
+
             } else {
-                throw new FileNotFoundException("File not found: " + indexPath);
+                //if the page html exists itself
+                return path;
             }
+
+        }
+        catch ( FileNotFoundException e )
+        {
+            Path path404 = Paths.get(PATH404);
+            System.out.println("path not found : " + path);
+            return path404;
         }
 
-        if (routePath.endsWith(".html") && lockFiles.lock(path)) {
-            fileLocked = true;
-            pageLockedPath = path;
-            return readBinaryFile(routePath);
-        }
-
-        return readBinaryFile(routePath);
     }
 
+    private boolean lockHtmlPage(Path resourcePath)
+    {
+        boolean endsWithHtml = resourcePath.toString().endsWith(".html");
+        if (endsWithHtml && lockFiles.lock(resourcePath)) {
+            //if the page html exists itself
+            return lockFiles.lock(resourcePath);
+        }
+
+        return false;
+    }
     /**
      * Run method of the ClientHandler. It handles the client Request given
      */
