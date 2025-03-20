@@ -31,7 +31,7 @@ replay_pid*
 .idea
 # Ignore all the files and directories in the sites directory except server.config.example
 sites/*
-!sites/server.config.example
+!configuration/server.config.example
 !sites/favicon.ico
 !sites/404.html
 !sites/pages

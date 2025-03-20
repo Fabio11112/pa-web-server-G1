@@ -12,10 +12,17 @@ public class Main {
      * @param args The arguments of the program
      */
     public static void main( String[] args ) {
-        String directory = "sites";
-        String path404 = "sites/404.html";
+        String directory;
+        String path404;
         String extension = "html";
         String logPath = "log/logs.txt";
+        String configPath = "configuration/server.config.example";
+
+
+        FileDecoder decoder = new FileDecoder();
+        decoder.decodeFile(configPath);
+
+
 
 
         Runnable[] tasks = new Runnable[5];
