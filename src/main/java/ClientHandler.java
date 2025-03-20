@@ -216,22 +216,15 @@ public class ClientHandler implements Runnable
             if( !Files.exists( path ) )
                 throw new FileNotFoundException( "File not found: " + path + "/index.html" );
 
-            Path indexPath = Paths.get( path + "/index.html" );
-            if ( Files.isDirectory( path ) )
-            { //and is directory
-
-                if( !Files.exists( indexPath ) )
-                    throw new FileNotFoundException( "File not found: " + path + "/index.html" );
-
-                System.out.println( "Page route: " + indexPath );
-                return indexPath;
-
-            }
-            else
-            {
-                //if the page html exists itself
+            if ( !Files.isDirectory( path ) )
                 return path;
-            }
+
+            Path indexPath = Paths.get( path + "/index.html" );
+
+            if( !Files.exists( indexPath ) )
+                throw new FileNotFoundException( "File not found: " + path + "/index.html" );
+
+            return indexPath;
 
         }
         catch ( FileNotFoundException e )
@@ -243,6 +236,8 @@ public class ClientHandler implements Runnable
 
     }
 
+
+
     /**
      * It verifies the resource requested is a html page, if it is, it locks the file, otherwise it does nothing
      * @param resourcePath The path of the resource requested
@@ -251,7 +246,7 @@ public class ClientHandler implements Runnable
     private boolean lockHtmlPage( Path resourcePath )
     {
         boolean endsWithHtml = resourcePath.toString( ).endsWith( ".html" );
-        if ( endsWithHtml && lockFiles.lock( resourcePath ) )
+        if ( endsWithHtml )
         {
             //if the page html exists itself
             return lockFiles.lock( resourcePath );

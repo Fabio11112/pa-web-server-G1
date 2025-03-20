@@ -35,12 +35,12 @@ public class Log {
      */
     @Override
     public String toString() {
-        return "{"+
-                "\n\"timestamp\":\"" + timestamp + "\",\n" +
-                "\"method\":\"" + method + "\",\n" +
-                "\"route\":\"" + path + "\",\n" +
-                "\"origin\":\"" + origin + "\",\n" +
-                "\"HTTP response status\":\"" + response + "\"\n"+
+        return "{\n"+
+                "   \"timestamp\":\"" + timestamp + "\",\n" +
+                "   \"method\":\"" + method + "\",\n" +
+                "   \"route\":\"" + path + "\",\n" +
+                "   \"origin\":\"" + origin + "\",\n" +
+                "   \"HTTP response status\":\"" + response + "\"\n"+
                 "}\n";
     }
 
