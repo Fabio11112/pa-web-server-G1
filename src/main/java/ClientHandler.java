@@ -86,28 +86,21 @@ public class ClientHandler implements Runnable{
 
             System.out.println("New client connected: " + client + "on Thread: " + Thread.currentThread().getId());
 
-            String[] tokens = getTokens( br );
-            if ( tokens == null || tokens.length == 0 )
-                throw new IOException( "Invalid request received.");
-
-            String route = tokens[1];
-            routePath = SERVER_ROOT + route;
+            routePath = getRoutePath(br);
 
             System.out.println( "Route: " + routePath );
-
             byte[] content;
-
 
             boolean endsWithHtml = routePath.endsWith( ".html" );
             Path path = Paths.get( routePath );
+
 
             Path pageLockedPath = null;
 
             try {
                 if (endsWithHtml) {
-                    if (lockFiles.exists(path))
+                    if (lockFiles.lock(path))
                     { //if the page html exists itself
-                        lockFiles.lock(path);
                         pageLockedPath = path;
                         content = readBinaryFile(routePath); //loads the .html page
                     }
@@ -217,6 +210,15 @@ public class ClientHandler implements Runnable{
         Runnable ProducerLogs = new ProducerLogs(buffer, bufferLock, itemsAvailable, log);
         Thread producerLogsThread = new Thread(ProducerLogs);
         producerLogsThread.start();
+    }
+
+    private String getRoutePath(BufferedReader br) throws IOException {
+        String[] tokens = getTokens( br );
+        if ( tokens == null || tokens.length == 0 )
+            throw new IOException( "Invalid request received.");
+
+        String route = tokens[1];
+        return SERVER_ROOT + route;
     }
 
     /**

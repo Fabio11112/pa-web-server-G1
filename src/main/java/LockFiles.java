@@ -39,10 +39,12 @@ public class LockFiles {
      * Locks the file that has the path given
      * @param path The path of the file that will be locked
      */
-    public void lock (Path path) {
-        if(exists(path)) {
+    public boolean lock (Path path) {
+        boolean exists = exists(path);
+        if(exists) {
             getLock(path).lock();
         }
+        return exists;
 
     }
 
@@ -50,10 +52,12 @@ public class LockFiles {
      * Unlocks the file that has the path given
      * @param path The path of the file that will be unlocked
      */
-    public void unlock (Path path) {
-        if(exists(path)) {
+    public boolean unlock (Path path) {
+        boolean exists = exists(path);
+        if(exists) {
             getLock(path).unlock();
         }
+        return exists;
 
     }
 
