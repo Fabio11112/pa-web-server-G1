@@ -7,31 +7,28 @@ import java.util.concurrent.locks.ReentrantLock;
  * Main class that starts the server and the thread pool.
  */
 public class Main {
+
     /**
      * Main method that starts the server and the thread pool.
      * @param args The arguments of the program
      */
     public static void main( String[] args ) {
-        String directory = "sites";
-        String path404 = "sites/404.html";
-        String extension = "html";
-        String logPath = "log/logs.txt";
+        String configPath = "configuration/server.config.example";
 
-
-        Runnable[] tasks = new Runnable[5];
+        ServerConfigLoader configs = new ServerConfigLoader(configPath);
 
         Semaphore semaphore = new Semaphore(0);
         Lock bufferLock = new ReentrantLock();
         ArrayList<Log> buffer = new ArrayList<>();
 
-        Runnable consumerLogs = new ConsumerLogs(logPath, buffer, bufferLock, semaphore);
+        Runnable consumerLogs = new ConsumerLogs(configs.getLogPath(), buffer, bufferLock, semaphore);
         Thread consumerLogsThread = new Thread(consumerLogs);
         consumerLogsThread.start();
 
-        LockFiles lockFiles = new LockFiles( extension, directory );
+        LockFiles lockFiles = new LockFiles(configs.getExtension(), configs.getDirectory() );
 
-        ThreadPool pool = new ThreadPool(tasks.length, tasks.length, 5000 , 10);
-        MainHTTPServer server = new MainHTTPServer(8888, pool, directory, path404, lockFiles, buffer, bufferLock, semaphore);
+        ThreadPool pool = new ThreadPool(configs.getCorePoolSize(), configs.getMaxPoolSize(), configs.getKeepAliveTime(), configs.getMaxQueueThreadSize());
+        MainHTTPServer server = new MainHTTPServer(configs.getPort(), pool, configs.getDirectory(), configs.getPath404(), lockFiles, buffer, bufferLock, semaphore);
 
         server.startServer();
 

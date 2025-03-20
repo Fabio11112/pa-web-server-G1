@@ -1,6 +1,5 @@
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,10 +8,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.Semaphore;
 
 /**
- * Handler of the Client Requests
+ * Represents the client handler that will handle the client request and send the response to the client socket connection
+ * It will also send the log to the buffer of logs
  */
-public class ClientHandler implements Runnable{
-
+public class ClientHandler implements Runnable
+{
     private final LockFiles lockFiles;
     private final String SERVER_ROOT;
     private final Socket client;
@@ -21,7 +21,11 @@ public class ClientHandler implements Runnable{
     private final Semaphore itemsAvailable;
     private final ArrayList<Log> buffer;
 
+    private final static int RESPONSE_OK = 200;
+    private final static int RESPONSE_NOT_FOUND = 404;
+    private final static int INTERNAL_SERVER_ERROR = 500;
 
+    private final static int MILLISECONDS_TO_WAIT = 15000;
 
     /**
      * Constructor for the ClientHandler class
@@ -30,13 +34,14 @@ public class ClientHandler implements Runnable{
      * @param SERVER_ROOT The root of the server
      * @param PATH404 The path of the 404 page
      */
-    public ClientHandler(Socket client,
+    public ClientHandler( Socket client,
                          LockFiles lockFiles,
                          String SERVER_ROOT,
                          String PATH404,
                          Lock bufferLock,
                          Semaphore itemsAvailable,
-                         ArrayList<Log> buffer) {
+                         ArrayList<Log> buffer )
+    {
 
         this.lockFiles = lockFiles;
         this.SERVER_ROOT = SERVER_ROOT;
@@ -55,18 +60,20 @@ public class ClientHandler implements Runnable{
      * @return tokens of the BufferedReader
      * @throws IOException When the BufferedReader is invalid
      */
-    private String[] getTokens( BufferedReader br ) throws IOException {
-
-        StringBuilder requestBuilder = new StringBuilder();
+    private String[] getTokens( BufferedReader br ) throws IOException
+    {
+        StringBuilder requestBuilder = new StringBuilder( );
         String line;
-        while ( !( line = br.readLine() ).isBlank() ) {
+        while ( !( line = br.readLine( ) ).isBlank( ) )
+        {
             requestBuilder.append( line ).append( "\r\n" );
         }
 
-        String request = requestBuilder.toString();
+        String request = requestBuilder.toString( );
         String[] tokens = request.split( " " );
-        if (tokens.length < 2) {
-            System.err.println("Invalid request received.");
+        if ( tokens.length < 2 )
+        {
+            System.err.println( "Invalid request received." );
             return null;
         }
 
@@ -74,147 +81,210 @@ public class ClientHandler implements Runnable{
     }
 
     /**
-     * Handles the client request
+     * Handles the client request. It reads the request, gets the path of the page wanted, routes the path,
+     * reads the binary file of the page, locks the html page if it is in fact one, flushes the request to the client,
+     * unlocks the html page if it was locked, and sends the log to the buffer
      */
-    private void clientRequest(){
+    private void clientRequest( )
+    {
 
         //instantiation of variables because of finally block
         String routePath;
+        byte[] content;
+        boolean lockedHtmlPage;
+        Path resourcePath = null;
 
-        try(BufferedReader br = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
-            OutputStream clientOutput = client.getOutputStream()) {
-            System.out.println("New client connected: " + client + "on Thread: " + Thread.currentThread().getId());
+        try( BufferedReader br = new BufferedReader( new InputStreamReader( client.getInputStream( ) ) );
+            OutputStream clientOutput = client.getOutputStream( ) )
+        {
 
-            routePath = getRoutePath(br);
+            logClientConnection( );
+            routePath = getRoutePath( br );
 
             System.out.println( "Route: " + routePath );
-            byte[] content;
+            resourcePath = Paths.get( routePath );
+            resourcePath = Routing( resourcePath );
+            content = readBinaryFile( resourcePath.toString( ) );
 
-            boolean endsWithHtml = routePath.endsWith( ".html" );
-            boolean fileLocked = false;
-            Path path = Paths.get( routePath );
+            if(content.length == 0)
+                throw new FileNotFoundException( "File not found: " + resourcePath );
 
+            lockedHtmlPage = lockHtmlPage( resourcePath );
 
-            Path pageLockedPath = null;
-            try {
-                if (Files.exists(path)) {
-                    if (Files.isDirectory(path)) { //and is directory
-                        Path indexPath = Paths.get(path + "/index.html");
-                        if (Files.exists(indexPath) && lockFiles.lock(indexPath)) { //and index.html of directory exists
-                            //it verifies if the file exists, if it does, it locks the file and continues
-                            fileLocked = true;
-                            pageLockedPath = indexPath;
-                            content = readBinaryFile(indexPath.toString());
-                            System.out.println("Page route: " + indexPath);
-                        } else { //index.html of directory does NOT exist
-                            throw new FileNotFoundException("File not found: " + path + "/index.html");
-                        }
-                    } else if (endsWithHtml && lockFiles.lock(path)) {
-                        //if the page html exists itself
-                        fileLocked = true;
-                        pageLockedPath = path;
-                        content = readBinaryFile(routePath); //loads the .html page
-                    } else //if file exists but it is not a html file
-                    {
-                        content = readBinaryFile(routePath);
-                    }
-                } else {
-                    throw new FileNotFoundException("File not found: " + routePath);//not found
-                }
+            flushRequest( clientOutput, content );
+            unlockHtmlPage( lockedHtmlPage, resourcePath );
 
-
-            } catch (FileNotFoundException e) {
-                Path path404 = Paths.get(PATH404);
-                if (lockFiles.lock(path404)) {
-                    System.out.println("path not found : " + routePath);
-                    fileLocked = true;
-                    pageLockedPath = path404;
-                    content = readBinaryFile(PATH404);
-                } else {
-                    throw new InterruptedException("File not found: " + PATH404);
-                }
-            }
-
-            flushRequest(clientOutput, fileLocked, content, pageLockedPath);
-            sendLog("GET", path, "origin", 200);
+            int response = resourcePath.toString( ).equals( PATH404 ) ? RESPONSE_NOT_FOUND : RESPONSE_OK;
+            sendLog( "GET", resourcePath, client.toString( ), response );
 
         }
-        catch(InterruptedException e){
-            e.printStackTrace();
-        }
-        catch ( SocketException e ) {
-            System.err.println( "[CLIENT DISCONNECTED]: " + e.getMessage() );
-            e.printStackTrace();
-        }
-        catch( IOException e ){
-            e.printStackTrace();
-        }
-        catch ( Exception e ){
-            e.printStackTrace();
+        catch( Exception e )
+        {
+            sendLog( "GET", resourcePath, client.toString(), INTERNAL_SERVER_ERROR );
+            e.printStackTrace( );
         }
     }
 
     /**
      * Reads a binary file and returns its contents as a byte array.
      *
-     * @param path The file path to read.
+     * @param path The path of the file that will be read.
      * @return A byte array containing the file's contents, or an empty array if an error occurs.
      */
     private byte[] readBinaryFile( String path ) {
-        try {
+        try
+        {
             return Files.readAllBytes( Paths.get( path ) );
-        } catch ( IOException e ) {
+        }
+        catch ( IOException e )
+        {
             System.err.println( "Error reading file: " + path );
-            e.printStackTrace();
+            e.printStackTrace( );
             return new byte[0];
         }
     }
 
-    private void flushRequest(OutputStream clientOutput,
-                              boolean fileLocked,
-                              byte[] content,
-                              Path pageLockedPath) throws IOException, InterruptedException
+    /**
+     * Flushes the request to the client. This means that the response will be sent to the client
+     * @param clientOutput The OutputStream of the client
+     * @param content The content of the response in bytes
+     * @throws IOException When the OutputStream is invalid
+     */
+    private void flushRequest( OutputStream clientOutput, byte[] content ) throws IOException
     {
-        if (clientOutput != null)
+        if ( clientOutput != null )
         {
-            clientOutput.write("HTTP/1.1 200 OK\r\n".getBytes());
-            clientOutput.write("Content-Type: text/html\r\n".getBytes());
-            clientOutput.write("\r\n".getBytes());
+            clientOutput.write( "HTTP/1.1 200 OK\r\n".getBytes( ) );
+            clientOutput.write( "Content-Type: text/html\r\n".getBytes( ) );
+            clientOutput.write( "\r\n".getBytes( ) );
 
             // Send response body
-            clientOutput.write(content);
-            clientOutput.write("\r\n\r\n".getBytes());
-            clientOutput.flush();
-            client.close();
-            if (fileLocked) {
-                //Thread.sleep for testing threads
-                Thread.sleep(15000);
-                lockFiles.unlock(pageLockedPath);
-            }
+            clientOutput.write( content );
+            clientOutput.write( "\r\n\r\n".getBytes( ) );
+            clientOutput.flush( );
+            client.close( );
         }
     }
 
-    private void sendLog (String method, Path path, String origin, int response) {
-        Log log = new Log(method, path, origin, response);
-        Runnable ProducerLogs = new ProducerLogs(buffer, bufferLock, itemsAvailable, log);
-        Thread producerLogsThread = new Thread(ProducerLogs);
-        producerLogsThread.start();
+    /**
+     * Creates a Thread that sends the log to the buffer of Logs, which will be processed by the instance of ConsumerLogs
+     * @param method The method of the request
+     * @param path The path of the page sent
+     * @param origin The origin of the request
+     * @param response The response of the request
+     */
+    private void sendLog ( String method, Path path, String origin, int response )
+    {
+        Log log = new Log( method, path, origin, response );
+        Runnable ProducerLogs = new ProducerLogs( buffer, bufferLock, itemsAvailable, log );
+        Thread producerLogsThread = new Thread( ProducerLogs );
+        producerLogsThread.start( );
     }
 
-    private String getRoutePath(BufferedReader br) throws IOException {
+    /**
+     * Get the path of the route requested by the client
+     * @param br The BufferedReader from the client socket
+     * @return The path of the route requested by the client
+     * @throws IOException When the BufferedReader is invalid
+     */
+    private String getRoutePath( BufferedReader br ) throws IOException
+    {
         String[] tokens = getTokens( br );
         if ( tokens == null || tokens.length == 0 )
-            throw new IOException( "Invalid request received.");
+            throw new IOException( "Invalid request received." );
 
         String route = tokens[1];
         return SERVER_ROOT + route;
     }
 
     /**
-     * Run method of the ClientHandler. It handles the client Request given
+     * It prints the client connection on the console. Used for debugging purposes
+     */
+    private void logClientConnection( )
+    {
+        System.out.println( "New client connected: " + client + "on Thread: " + Thread.currentThread( ).getId( ) );
+    }
+
+    /**
+     * It routes the path of the page requested by the client. It will return the path inserted whether it was
+     * correctly inserted by the client, or it will return the index.html whether the directory inserted exists.
+     * It routes the 404.html page file otherwise.
+     *
+     * @param path The path of the page requested by the client. Or the 404 file if it does not exist
+     */
+    private Path Routing ( Path path ) {
+        try
+        {
+            if( !Files.exists( path ) )
+                throw new FileNotFoundException( "File not found: " + path + "/index.html" );
+
+            if ( !Files.isDirectory( path ) )
+                return path;
+
+            Path indexPath = Paths.get( path + "/index.html" );
+
+            if( !Files.exists( indexPath ) )
+                throw new FileNotFoundException( "File not found: " + path + "/index.html" );
+
+            return indexPath;
+
+        }
+        catch ( FileNotFoundException e )
+        {
+            Path path404 = Paths.get( PATH404 );
+            System.out.println( "path not found : " + path );
+            return path404;
+        }
+
+    }
+
+
+
+    /**
+     * It verifies the resource requested is a html page, if it is, it locks the file, otherwise it does nothing
+     * @param resourcePath The path of the resource requested
+     * @return True if the resource is a html page and it was locked, false otherwise
+     */
+    private boolean lockHtmlPage( Path resourcePath )
+    {
+        boolean endsWithHtml = resourcePath.toString( ).endsWith( ".html" );
+        if ( endsWithHtml )
+        {
+            //if the page html exists itself
+            return lockFiles.lock( resourcePath );
+        }
+
+        return false;
+    }
+
+    /**
+     * Unlock the html page if it was locked
+     * @param lockedHtmlPage If the html page was locked. This means that the resource wanted for the request was a html page
+     *                       and not anything else (e.g. favicon.ico)
+     * @param resourcePath The path of the resource that was locked
+     * @throws InterruptedException If the thread that responds the request is interrupted
+     */
+    private void unlockHtmlPage ( boolean lockedHtmlPage, Path resourcePath ) throws InterruptedException
+    {
+        if ( lockedHtmlPage )
+        {
+            //Thread.sleep for testing threads
+            Thread.sleep( MILLISECONDS_TO_WAIT );
+            lockFiles.unlock( resourcePath );
+        }
+    }
+    /**
+     * Run method of the ClientHandler. It will handle the client request and send the response to the client socket connection
+     * It will also send the log to the buffer of logs for processing by the ConsumerLogs instance of the server thread
      */
     @Override
-    public void run() {
-        clientRequest();
+    public void run( )
+    {
+        clientRequest( );
     }
 }
+
+
+
+
+

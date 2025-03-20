@@ -32,6 +32,9 @@ public class ConsumerLogs implements Runnable{
         this.itemsAvailable = itemsAvailable;
     }
 
+    /**
+     * Method that will consume the logs from the buffer and write them to the log file
+     */
     private void consumeLogs() {
         try {
             while (true) {
@@ -50,14 +53,11 @@ public class ConsumerLogs implements Runnable{
                                 Log log = buffer.remove(0);
                                 writer.write(log.toString()+"\n");
                                 writer.flush();
-                                System.out.println("Consumer " + Thread.currentThread().getId() + " consumed: " + log.toString());
                             }
                         } finally {
                             bufferLock.unlock();
                         }
 
-                    } else {
-                        System.out.println("Consumer " + Thread.currentThread().getId() + " cannot consumer buffer is locked");
                     }
                 }
 
@@ -72,9 +72,12 @@ public class ConsumerLogs implements Runnable{
         }
     }
 
+    /**
+     * Method that will be executed when the thread is started. It will consume the logs from the buffer. It will do nothing
+     * if there are no logs in the buffer
+     */
     @Override
     public void run(){
-        System.out.println("Consumer " + Thread.currentThread().getId() + " started");
         consumeLogs();
     }
 }
