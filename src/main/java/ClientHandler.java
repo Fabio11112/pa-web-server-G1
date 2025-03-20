@@ -79,11 +79,13 @@ public class ClientHandler implements Runnable{
     private void clientRequest(){
 
         //instantiation of variables because of finally block
-        String routePath;
+        String routePath = null;
 
         try(BufferedReader br = new BufferedReader( new InputStreamReader( client.getInputStream() ) );
             OutputStream clientOutput = client.getOutputStream()) {
-            System.out.println("New client connected: " + client + "on Thread: " + Thread.currentThread().getId());
+
+            logClientConnection();
+
 
             routePath = getRoutePath(br);
 
@@ -210,6 +212,39 @@ public class ClientHandler implements Runnable{
         return SERVER_ROOT + route;
     }
 
+    private void logClientConnection(){
+        System.out.println("New client connected: " + client + "on Thread: " + Thread.currentThread().getId());
+    }
+
+    private byte[] handleRequestedFile(String routePath) throws IOException, InterruptedException {
+        Path path = Paths.get(routePath);
+        boolean fileLocked = false;
+        Path pageLockedPath = null;
+
+        if (!Files.exists(path)) {
+            throw new FileNotFoundException("File not found: " + routePath);
+        }
+
+        if (Files.isDirectory(path)) {
+            Path indexPath = path.resolve("index.html");
+            if (Files.exists(indexPath)) {
+                fileLocked = lockFiles.lock(indexPath);
+                pageLockedPath = indexPath;
+                return readBinaryFile(indexPath.toString());
+            } else {
+                throw new FileNotFoundException("File not found: " + indexPath);
+            }
+        }
+
+        if (routePath.endsWith(".html") && lockFiles.lock(path)) {
+            fileLocked = true;
+            pageLockedPath = path;
+            return readBinaryFile(routePath);
+        }
+
+        return readBinaryFile(routePath);
+    }
+
     /**
      * Run method of the ClientHandler. It handles the client Request given
      */
@@ -218,3 +253,8 @@ public class ClientHandler implements Runnable{
         clientRequest();
     }
 }
+
+
+
+
+
