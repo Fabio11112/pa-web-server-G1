@@ -96,13 +96,11 @@ public class ClientHandler implements Runnable{
 
 
             Path pageLockedPath = null;
-            try
-            {
-                if( Files.exists( path ) )
-                {
-                    if( Files.isDirectory( path ) ) { //and is directory
-                        Path indexPath = Paths.get( path + "/index.html");
-                        if ( Files.exists(indexPath) && lockFiles.lock(indexPath)) { //and index.html of directory exists
+            try {
+                if (Files.exists(path)) {
+                    if (Files.isDirectory(path)) { //and is directory
+                        Path indexPath = Paths.get(path + "/index.html");
+                        if (Files.exists(indexPath) && lockFiles.lock(indexPath)) { //and index.html of directory exists
                             //it verifies if the file exists, if it does, it locks the file and continues
                             fileLocked = true;
                             pageLockedPath = indexPath;
@@ -111,34 +109,28 @@ public class ClientHandler implements Runnable{
                         } else { //index.html of directory does NOT exist
                             throw new FileNotFoundException("File not found: " + path + "/index.html");
                         }
-                    }
-                    else if ( endsWithHtml && lockFiles.lock( path ) )
-                    {
+                    } else if (endsWithHtml && lockFiles.lock(path)) {
                         //if the page html exists itself
                         fileLocked = true;
                         pageLockedPath = path;
                         content = readBinaryFile(routePath); //loads the .html page
-                    }
-                    else //if file exists but it is not a html file
+                    } else //if file exists but it is not a html file
                     {
                         content = readBinaryFile(routePath);
                     }
-                }
-                else
-                {
-                    throw new FileNotFoundException( "File not found: " + routePath );//not found
+                } else {
+                    throw new FileNotFoundException("File not found: " + routePath);//not found
                 }
 
 
-            } catch ( FileNotFoundException e ) {
+            } catch (FileNotFoundException e) {
                 Path path404 = Paths.get(PATH404);
-                if(lockFiles.lock(path404)) {
+                if (lockFiles.lock(path404)) {
                     System.out.println("path not found : " + routePath);
                     fileLocked = true;
                     pageLockedPath = path404;
                     content = readBinaryFile(PATH404);
-                }
-                else {
+                } else {
                     throw new InterruptedException("File not found: " + PATH404);
                 }
             }
