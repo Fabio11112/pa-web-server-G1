@@ -25,6 +25,8 @@ public class ClientHandler implements Runnable
     private final static int RESPONSE_NOT_FOUND = 404;
     private final static int INTERNAL_SERVER_ERROR = 500;
 
+    private final static int MILLISECONDS_TO_WAIT = 1500;
+
     /**
      * Constructor for the ClientHandler class
      * @param client The client that will be handled
@@ -267,7 +269,7 @@ public class ClientHandler implements Runnable
         if ( lockedHtmlPage )
         {
             //Thread.sleep for testing threads
-            Thread.sleep( 15000 );
+            Thread.sleep( MILLISECONDS_TO_WAIT );
             lockFiles.unlock( resourcePath );
         }
     }
