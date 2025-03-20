@@ -21,14 +21,15 @@ public class MainHTTPServer {
     private final ArrayList<Log> buffer;
 
     /**
-     * Constructor to initialize the HTTP server thread with a specified port.
-     *
-     * @param port The port number on which the server will listen.
-     * @param pool the ThreadPool
-     * @param SERVER_ROOT the root directory for the web application
-     * @param PATH404 the path of the 404 page
-     * @param pathPagesMap the LockFiles variable to lock the pages
-     *
+     * Constructor for the MainHTTPServer class.
+     * @param port The port that the server will listen to
+     * @param pool The thread pool that will be used to handle the requests
+     * @param SERVER_ROOT The root directory of the pages of the server
+     * @param PATH404 The path of the 404 page
+     * @param pathPagesMap The map that will store the locks of the files related to the HTML pages
+     * @param buffer The buffer that will store the logs
+     * @param bufferLock The lock that will be used to lock the buffer
+     * @param itemsAvailable The semaphore that will be used to signal that there are items available in the buffer
      */
     public MainHTTPServer(int port,
                           ThreadPool pool,

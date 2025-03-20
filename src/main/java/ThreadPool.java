@@ -26,17 +26,31 @@ public class ThreadPool extends ThreadPoolExecutor {
                 });
     }
 
+    /**
+     * Method that will be executed before the task is executed
+     * @param t the thread that will run task
+     * @param r the task that will be executed
+     */
     @Override
     protected void beforeExecute(Thread t, Runnable r) {
         super.beforeExecute(t, r);
     }
 
+    /**
+     * Method that will be executed after the task is executed
+     * @param r the runnable that has completed
+     * @param t the exception that caused termination, or null if
+     * execution completed normally
+     */
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
         super.afterExecute(r, t);
         System.out.println("Task Completed" + r);
     }
 
+    /**
+     * Method that will be executed after the thread pool is terminated
+     */
     @Override
     protected void terminated() {
         super.terminated();
