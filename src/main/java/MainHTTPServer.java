@@ -53,26 +53,6 @@ public class MainHTTPServer {
 
 
     /**
-     * Reads a text file and returns its contents as a string.
-     *
-     * @param path The file path to read.
-     * @return A string containing the file's contents, or an empty string if an error occurs.
-     */
-    private String readFile( String path ) {
-        StringBuilder content = new StringBuilder();
-        try ( BufferedReader reader = new BufferedReader( new FileReader( path ) ) ) {
-            String line;
-            while ( ( line = reader.readLine() ) != null ) {
-                content.append( line ).append( "\n" );
-            }
-        } catch ( IOException e ) {
-            System.err.println( "Error reading file: " + path );
-            e.printStackTrace();
-        }
-        return content.toString();
-    }
-
-    /**
      * Starts the server and listens for incoming client connections.
      */
     public void startServer() {
