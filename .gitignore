@@ -36,5 +36,5 @@ sites/*
 !sites/404.html
 !sites/pages
 
-log/*
+log/
 
