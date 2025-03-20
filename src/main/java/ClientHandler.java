@@ -25,7 +25,7 @@ public class ClientHandler implements Runnable
     private final static int RESPONSE_NOT_FOUND = 404;
     private final static int INTERNAL_SERVER_ERROR = 500;
 
-    private final static int MILLISECONDS_TO_WAIT = 1500;
+    private final static int MILLISECONDS_TO_WAIT = 15000;
 
     /**
      * Constructor for the ClientHandler class

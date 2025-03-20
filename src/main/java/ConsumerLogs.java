@@ -53,14 +53,11 @@ public class ConsumerLogs implements Runnable{
                                 Log log = buffer.remove(0);
                                 writer.write(log.toString()+"\n");
                                 writer.flush();
-                                System.out.println("Consumer " + Thread.currentThread().getId() + " consumed: " + log.toString());
                             }
                         } finally {
                             bufferLock.unlock();
                         }
 
-                    } else {
-                        System.out.println("Consumer " + Thread.currentThread().getId() + " cannot consumer buffer is locked");
                     }
                 }
 
@@ -81,7 +78,6 @@ public class ConsumerLogs implements Runnable{
      */
     @Override
     public void run(){
-        System.out.println("Consumer " + Thread.currentThread().getId() + " started");
         consumeLogs();
     }
 }
