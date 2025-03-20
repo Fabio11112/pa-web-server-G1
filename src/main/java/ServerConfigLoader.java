@@ -9,7 +9,6 @@ public class ServerConfigLoader {
     private String logPath;
 
     private int port;
-    private int maxRequest;
     private int corePoolSize;
     private int maxPoolSize;
     private int keepAliveTime;
@@ -22,8 +21,8 @@ public class ServerConfigLoader {
      *
      */
 
-    public ServerConfigLoader(String path) {
-        decodeFile(path);
+    public ServerConfigLoader( String path ) {
+        decodeFile( path );
     }
 
     //_______________ GETTERS ______________
@@ -32,7 +31,7 @@ public class ServerConfigLoader {
      * Gets the directory of the server
      * @return The directory of the server
      */
-    public String getDirectory() {
+    public String getDirectory( ) {
         return directory;
     }
 
@@ -40,7 +39,7 @@ public class ServerConfigLoader {
      * Gets the path of the 404 html file
      * @return The path of the 404 html file
      */
-    public String getPath404() {
+    public String getPath404( ) {
         return path404;
     }
 
@@ -48,7 +47,7 @@ public class ServerConfigLoader {
      * Gets the extension of the files that will be locked
      * @return The extension of the files that will be locked
      */
-    public String getExtension() {
+    public String getExtension( ) {
         return extension;
     }
 
@@ -56,7 +55,7 @@ public class ServerConfigLoader {
      * Gets the path of the log file
      * @return The path of the log file
      */
-    public String getLogPath() {
+    public String getLogPath( ) {
         return logPath;
     }
 
@@ -64,23 +63,15 @@ public class ServerConfigLoader {
      * Gets the port of the server
      * @return The port of the server
      */
-    public int getPort() {
+    public int getPort( ) {
         return port;
-    }
-
-    /**
-     * Gets the maximum number of requests that the server can handle at the same time
-     * @return The maximum number of requests that the server can handle at the same time
-     */
-    public int getMaxRequest() {
-        return maxRequest;
     }
 
     /**
      * Gets the core pool size
      * @return The core pool size
      */
-    public int getCorePoolSize() {
+    public int getCorePoolSize( ) {
         return corePoolSize;
     }
 
@@ -88,7 +79,7 @@ public class ServerConfigLoader {
      * Gets the maximum number of threads that can be created
      * @return The maximum number of threads that can be created
      */
-    public int getMaxPoolSize() {
+    public int getMaxPoolSize( ) {
         return maxPoolSize;
     }
 
@@ -96,7 +87,7 @@ public class ServerConfigLoader {
      * Gets the time that the thread will be alive
      * @return The time that the thread will be alive
      */
-    public int getKeepAliveTime() {
+    public int getKeepAliveTime( ) {
         return keepAliveTime;
     }
 
@@ -104,7 +95,7 @@ public class ServerConfigLoader {
      * Gets the maximum number of threads that can be in the queue
      * @return The maximum number of threads that can be in the queue
      */
-    public int getMaxQueueThreadSize() {
+    public int getMaxQueueThreadSize( ) {
         return maxQueueThreadSize;
     }
 //_________________________________
@@ -116,7 +107,7 @@ public class ServerConfigLoader {
      * @return content The content of the file
      */
     public String readFile( String path ) {
-        StringBuilder content = new StringBuilder();
+        StringBuilder content = new StringBuilder( );
         try ( BufferedReader reader = new BufferedReader( new java.io.FileReader( path ) ) ) {
             String line;
             while ( ( line = reader.readLine() ) != null ) {
@@ -126,34 +117,31 @@ public class ServerConfigLoader {
             System.err.println( "Error reading file: " + path );
 
         }
-        return content.toString();
+        return content.toString( );
     }
 
     /**
      * Decodes the file and sets the values of the class
      * @param path The path of the file to decode
      */
-    public void decodeFile(String path) {
-        String content = readFile(path);
-        String[] lines =  content.split("\n");
+    public void decodeFile( String path ) {
+        String content = readFile( path );
+        String[] lines =  content.split( "\n" );
 
-        for(String line : lines) {
-            String[] parts = line.split("=");
-            if(parts.length != 2)
+        for( String line : lines ) {
+            String[] parts = line.split( "=" );
+            if( parts.length != 2 )
                 return;
 
-            switch (parts[0]){
+            switch ( parts[0] ){
                 case "port":
-                    this.port = Integer.parseInt(parts[1]);
-                    break;
-                case "maximum_requests":
-                    this.maxRequest = Integer.parseInt(parts[1]);
+                    this.port = Integer.parseInt( parts[1] );
                     break;
                 case "corePoolSize":
-                    this.corePoolSize = Integer.parseInt(parts[1]);
+                    this.corePoolSize = Integer.parseInt( parts[1] );
                     break;
                 case "maximumPoolSize":
-                    this.maxPoolSize = Integer.parseInt(parts[1]);
+                    this.maxPoolSize = Integer.parseInt( parts[1] );
                     break;
                 case "directory":
                     this.directory = parts[1];
@@ -168,10 +156,10 @@ public class ServerConfigLoader {
                     this.logPath = parts[1];
                     break;
                 case "keepAliveTime":
-                    this.keepAliveTime = Integer.parseInt(parts[1]);
+                    this.keepAliveTime = Integer.parseInt( parts[1] );
                     break;
                 case "maxQueueThreadSize":
-                    this.maxQueueThreadSize = Integer.parseInt(parts[1]);
+                    this.maxQueueThreadSize = Integer.parseInt( parts[1] );
                     break;
             }
 

@@ -27,6 +27,8 @@ public class ClientHandler implements Runnable
 
     private final static int MILLISECONDS_TO_WAIT = 15000;
 
+    private final static String INDEX = "/index.html";
+
     /**
      * Constructor for the ClientHandler class
      * @param client The client that will be handled
@@ -216,15 +218,15 @@ public class ClientHandler implements Runnable
         try
         {
             if( !Files.exists( path ) )
-                throw new FileNotFoundException( "File not found: " + path + "/index.html" );
+                throw new FileNotFoundException( "File not found: " + path + INDEX );
 
             if ( !Files.isDirectory( path ) )
                 return path;
 
-            Path indexPath = Paths.get( path + "/index.html" );
+            Path indexPath = Paths.get( path + INDEX );
 
             if( !Files.exists( indexPath ) )
-                throw new FileNotFoundException( "File not found: " + path + "/index.html" );
+                throw new FileNotFoundException( "File not found: " + path + INDEX );
 
             return indexPath;
 

@@ -16,14 +16,14 @@ public class ThreadPool extends ThreadPoolExecutor {
      * @param keepAliveTime Maximum amount of time to keep idle thread alive in milliseconds
      * @param maxQueueThreadSize Maximum amount of threads to keep in queue
      */
-    public ThreadPool(int corePoolSize, int maxPoolSize, int keepAliveTime, int maxQueueThreadSize) {
+    public ThreadPool( int corePoolSize, int maxPoolSize, int keepAliveTime, int maxQueueThreadSize ) {
         super(
                 corePoolSize,
                 maxPoolSize,
                 keepAliveTime,
                 TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(maxQueueThreadSize) {
-                });
+                new LinkedBlockingQueue<Runnable>( maxQueueThreadSize ) {
+                } );
     }
 
     /**
@@ -32,8 +32,8 @@ public class ThreadPool extends ThreadPoolExecutor {
      * @param r the task that will be executed
      */
     @Override
-    protected void beforeExecute(Thread t, Runnable r) {
-        super.beforeExecute(t, r);
+    protected void beforeExecute( Thread t, Runnable r ) {
+        super.beforeExecute( t, r );
     }
 
     /**
@@ -43,17 +43,17 @@ public class ThreadPool extends ThreadPoolExecutor {
      * execution completed normally
      */
     @Override
-    protected void afterExecute(Runnable r, Throwable t) {
-        super.afterExecute(r, t);
-        System.out.println("Task Completed" + r);
+    protected void afterExecute( Runnable r, Throwable t ) {
+        super.afterExecute( r, t );
+        System.out.println( "Task Completed" + r );
     }
 
     /**
      * Method that will be executed after the thread pool is terminated
      */
     @Override
-    protected void terminated() {
-        super.terminated();
+    protected void terminated( ) {
+        super.terminated( );
     }
 
 

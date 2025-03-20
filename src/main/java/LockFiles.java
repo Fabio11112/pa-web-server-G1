@@ -13,7 +13,7 @@ import java.util.stream.Stream;
  * Represents the locks of each file that has the same extension
  */
 public class LockFiles {
-    private final ConcurrentHashMap<Path, Lock> map = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Path, Lock> map = new ConcurrentHashMap<>( );
     private final String extension;
 
 
@@ -21,9 +21,9 @@ public class LockFiles {
      * Constructor for the LockFiles class
      * @param extension The extension that will be checked
      */
-    public LockFiles(String extension, String directoryPath) {
+    public LockFiles( String extension, String directoryPath ) {
         this.extension = extension;
-        createLocks(directoryPath);
+        createLocks( directoryPath );
     }
 
     /**
@@ -31,18 +31,18 @@ public class LockFiles {
      * @param path path that will be checked
      * @return True if the path is in the map, false otherwise
      */
-    public boolean exists(Path path) {
-        return map.containsKey(path);
+    public boolean exists( Path path ) {
+        return map.containsKey( path );
     }
 
     /**
      * Locks the file that has the path given
      * @param path The path of the file that will be locked
      */
-    public boolean lock (Path path) {
-        boolean exists = exists(path);
-        if(exists) {
-            getLock(path).lock();
+    public boolean lock ( Path path ) {
+        boolean exists = exists( path );
+        if( exists ) {
+            getLock( path ).lock( );
         }
         return exists;
 
@@ -52,10 +52,10 @@ public class LockFiles {
      * Unlocks the file that has the path given
      * @param path The path of the file that will be unlocked
      */
-    public boolean unlock (Path path) {
-        boolean exists = exists(path);
-        if(exists) {
-            getLock(path).unlock();
+    public boolean unlock ( Path path ) {
+        boolean exists = exists( path );
+        if( exists ) {
+            getLock( path ).unlock( );
         }
         return exists;
 
@@ -73,19 +73,17 @@ public class LockFiles {
 
         try( Stream<Path> stream = Files.walk( dir ) ){
             stream.forEach( path -> {
-                if( !Files.isDirectory( ( path ) ) && hasSameExtension( path.toFile(), extension ) ){
-                    map.put( path, new ReentrantLock() );
+                if( !Files.isDirectory( ( path ) ) && hasSameExtension( path.toFile( ), extension ) ){
+                    map.put( path, new ReentrantLock( ) );
                 }
             });
         }
         catch( IOException e )
         {
-            e.printStackTrace();
+            e.printStackTrace( );
         }
 
     }
-
-
 
     /**
      * Verifies if the file has the same extension as the one put
@@ -97,7 +95,7 @@ public class LockFiles {
     private boolean hasSameExtension( File file, String extension ){
 
         // Get the file name
-        String fileName = file.getName();
+        String fileName = file.getName( );
 
         // Get the file extension
         String fileExtension = "";
@@ -114,15 +112,15 @@ public class LockFiles {
      * @param path The path of the file that has the lock
      * @return The lock of the path given
      */
-    public Lock getLock(Path path) {
-        return map.get(path);
+    public Lock getLock( Path path ) {
+        return map.get( path );
     }
 
 
     @Override
-    public String toString()
+    public String toString( )
     {
-        return map.toString();
+        return map.toString( );
     }
 
 }

@@ -31,7 +31,7 @@ public class MainHTTPServer {
      * @param bufferLock The lock that will be used to lock the buffer
      * @param itemsAvailable The semaphore that will be used to signal that there are items available in the buffer
      */
-    public MainHTTPServer(int port,
+    public MainHTTPServer( int port,
                           ThreadPool pool,
                           String SERVER_ROOT,
                           String PATH404,
@@ -55,8 +55,8 @@ public class MainHTTPServer {
     /**
      * Starts the server and listens for incoming client connections.
      */
-    public void startServer() {
-        try(ServerSocket server = new ServerSocket(port)) {
+    public void startServer( ) {
+        try( ServerSocket server = new ServerSocket( port ) ) {
 
             System.out.println( "Server started on port: " + port );
             System.out.println( "Working Directory: " + System.getProperty( "user.dir" ) );
@@ -64,29 +64,29 @@ public class MainHTTPServer {
             while ( true ) {
                 try
                 {
-                    Socket client = server.accept();
+                    Socket client = server.accept( );
 
                     //Reads and parses the HTTP Request
-                    pool.execute(new ClientHandler(client, pathPagesMap, SERVER_ROOT, PATH404, bufferLock, itemsAvailable, buffer ));
+                    pool.execute( new ClientHandler( client, pathPagesMap, SERVER_ROOT, PATH404, bufferLock, itemsAvailable, buffer ) );
 
 
                 } catch ( IOException e ) {
                     System.err.println( "Error handling client request." );
-                    e.printStackTrace();
+                    e.printStackTrace( );
                 }
             }
         } catch ( IOException e ) {
             System.err.println( "Server error: Unable to start on port " + port );
-            e.printStackTrace();
+            e.printStackTrace( );
         } finally {
-            pool.shutdown();
+            pool.shutdown( );
 
             try {
-                if (!pool.awaitTermination(10, TimeUnit.SECONDS)) {
-                    pool.shutdownNow();
+                if ( !pool.awaitTermination( 10, TimeUnit.SECONDS ) ) {
+                    pool.shutdownNow( );
                 }
-            } catch (InterruptedException e) {
-                pool.shutdownNow();
+            } catch ( InterruptedException e ) {
+                pool.shutdownNow( );
             }
         }
 

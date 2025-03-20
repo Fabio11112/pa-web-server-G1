@@ -15,22 +15,22 @@ public class Main {
     public static void main( String[] args ) {
         String configPath = "configuration/server.config.example";
 
-        ServerConfigLoader configs = new ServerConfigLoader(configPath);
+        ServerConfigLoader configs = new ServerConfigLoader( configPath );
 
-        Semaphore semaphore = new Semaphore(0);
-        Lock bufferLock = new ReentrantLock();
-        ArrayList<Log> buffer = new ArrayList<>();
+        Semaphore semaphore = new Semaphore( 0 );
+        Lock bufferLock = new ReentrantLock( );
+        ArrayList<Log> buffer = new ArrayList<>( );
 
-        Runnable consumerLogs = new ConsumerLogs(configs.getLogPath(), buffer, bufferLock, semaphore);
-        Thread consumerLogsThread = new Thread(consumerLogs);
-        consumerLogsThread.start();
+        Runnable consumerLogs = new ConsumerLogs( configs.getLogPath( ), buffer, bufferLock, semaphore );
+        Thread consumerLogsThread = new Thread( consumerLogs );
+        consumerLogsThread.start( );
 
-        LockFiles lockFiles = new LockFiles(configs.getExtension(), configs.getDirectory() );
+        LockFiles lockFiles = new LockFiles( configs.getExtension( ), configs.getDirectory( ) );
 
-        ThreadPool pool = new ThreadPool(configs.getCorePoolSize(), configs.getMaxPoolSize(), configs.getKeepAliveTime(), configs.getMaxQueueThreadSize());
-        MainHTTPServer server = new MainHTTPServer(configs.getPort(), pool, configs.getDirectory(), configs.getPath404(), lockFiles, buffer, bufferLock, semaphore);
+        ThreadPool pool = new ThreadPool( configs.getCorePoolSize( ), configs.getMaxPoolSize( ), configs.getKeepAliveTime( ), configs.getMaxQueueThreadSize( ) );
+        MainHTTPServer server = new MainHTTPServer( configs.getPort( ), pool, configs.getDirectory( ), configs.getPath404 ( ), lockFiles, buffer, bufferLock, semaphore );
 
-        server.startServer();
+        server.startServer( );
 
 
 

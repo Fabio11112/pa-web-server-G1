@@ -3,7 +3,6 @@ port=8888
 extension=html
 logPath=log/logs.txt
 path404=sites/404.html
-maximum_requests=5
 corePoolSize=5
 maximumPoolSize=5
 keepAliveTime=5000

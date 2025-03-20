@@ -18,7 +18,7 @@ public class ProducerLogs implements Runnable {
      * @param itemsAvailable The semaphore that will be used to signal that there are items available in the buffer
      * @param log The log that will be stored in the buffer
      */
-    public ProducerLogs(ArrayList<Log> buffer, Lock bufferLock, Semaphore itemsAvailable, Log log) {
+    public ProducerLogs( ArrayList<Log> buffer, Lock bufferLock, Semaphore itemsAvailable, Log log ) {
         this.buffer = buffer;
         this.bufferLock = bufferLock;
         this.itemsAvailable = itemsAvailable;
@@ -29,20 +29,20 @@ public class ProducerLogs implements Runnable {
     /**
      * Method that will store the log in the buffer and signal that there are items available in the buffer
      */
-    private void produceLogs(){
+    private void produceLogs( ){
         try
         {
-            bufferLock.lock();
-            buffer.add(log);
-            itemsAvailable.release();
+            bufferLock.lock( );
+            buffer.add( log );
+            itemsAvailable.release( );
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            e.printStackTrace();
+            e.printStackTrace( );
         }
         finally
         {
-            bufferLock.unlock();
+            bufferLock.unlock( );
         }
 
     }
@@ -51,8 +51,8 @@ public class ProducerLogs implements Runnable {
      * Method that will be executed when the thread is started. It will receive a log and store it in the buffer
      */
     @Override
-    public void run(){
-        produceLogs();
+    public void run( ){
+        produceLogs( );
     }
 
 

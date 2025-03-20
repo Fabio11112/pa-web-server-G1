@@ -25,7 +25,7 @@ public class ConsumerLogs implements Runnable{
      * @param bufferLock The lock of the buffer
      * @param itemsAvailable The semaphore that indicates if there are items available
      */
-    public ConsumerLogs(String logPath, ArrayList<Log> buffer, Lock bufferLock, Semaphore itemsAvailable) {
+    public ConsumerLogs( String logPath, ArrayList<Log> buffer, Lock bufferLock, Semaphore itemsAvailable ) {
         this.logPath = logPath;
         this.buffer = buffer;
         this.bufferLock = bufferLock;
@@ -35,39 +35,39 @@ public class ConsumerLogs implements Runnable{
     /**
      * Method that will consume the logs from the buffer and write them to the log file
      */
-    private void consumeLogs() {
+    private void consumeLogs( ) {
         try {
-            while (true) {
+            while ( true ) {
                 Path path;
-                if (logPath == null) {
+                if ( logPath == null ) {
                     return;
                 }
-                path = Paths.get(logPath);
-                File file = path.toFile();
+                path = Paths.get( logPath );
+                File file = path.toFile( );
 
-                try(FileWriter writer = new FileWriter(file, true)) {
-                    if (itemsAvailable.tryAcquire(5, TimeUnit.SECONDS)) {
+                try( FileWriter writer = new FileWriter( file, true ) ) {
+                    if ( itemsAvailable.tryAcquire( 5, TimeUnit.SECONDS ) ) {
                         try {
-                            bufferLock.lock();
-                            if (!buffer.isEmpty()) {
-                                Log log = buffer.remove(0);
-                                writer.write(log.toString()+"\n");
-                                writer.flush();
+                            bufferLock.lock( );
+                            if ( !buffer.isEmpty( ) ) {
+                                Log log = buffer.remove( 0 );
+                                writer.write( log.toString( )+"\n" );
+                                writer.flush( );
                             }
                         } finally {
-                            bufferLock.unlock();
+                            bufferLock.unlock( );
                         }
 
                     }
                 }
 
             }
-        } catch (InterruptedException e) //itemsAvailable.tryAcquire
+        } catch ( InterruptedException e ) //itemsAvailable.tryAcquire
         {
-            e.printStackTrace();
-        } catch (IOException e) //writer.write(log.toString());
+            e.printStackTrace( );
+        } catch ( IOException e ) //writer.write(log.toString());
         {
-            e.printStackTrace();
+            e.printStackTrace( );
 
         }
     }
@@ -77,7 +77,7 @@ public class ConsumerLogs implements Runnable{
      * if there are no logs in the buffer
      */
     @Override
-    public void run(){
-        consumeLogs();
+    public void run( ){
+        consumeLogs( );
     }
 }
