@@ -192,7 +192,6 @@ public class ClientHandler implements Runnable{
             if(!Files.exists(path))
                 throw new FileNotFoundException("File not found: " + path + "/index.html");
 
-
             Path indexPath = Paths.get(path + "/index.html");
             if (Files.isDirectory(path)) { //and is directory
 
