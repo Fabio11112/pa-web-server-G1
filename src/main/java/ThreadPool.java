@@ -1,4 +1,3 @@
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +21,7 @@ public class ThreadPool extends ThreadPoolExecutor {
                 maxPoolSize,
                 keepAliveTime,
                 TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>( maxQueueThreadSize ) {
+                new LinkedBlockingQueue<>( maxQueueThreadSize ) {
                 } );
     }
 
