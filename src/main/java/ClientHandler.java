@@ -93,7 +93,7 @@ public class ClientHandler implements Runnable
         //instantiation of variables because of finally block
         String routePath;
         byte[] content;
-        boolean lockedHtmlPage;
+        boolean lockedHtmlPage = false;
         Path resourcePath = null;
 
         try( BufferedReader br = new BufferedReader( new InputStreamReader( client.getInputStream( ) ) );
@@ -114,7 +114,7 @@ public class ClientHandler implements Runnable
             lockedHtmlPage = lockHtmlPage( resourcePath );
 
             flushRequest( clientOutput, content );
-            unlockHtmlPage( lockedHtmlPage, resourcePath );
+
 
             int response = resourcePath.toString( ).equals( PATH404 ) ? RESPONSE_NOT_FOUND : RESPONSE_OK;
             sendLog( "GET", resourcePath, client.toString( ), response );
@@ -124,6 +124,9 @@ public class ClientHandler implements Runnable
         {
             sendLog( "GET", resourcePath, client.toString(), INTERNAL_SERVER_ERROR );
             e.printStackTrace( );
+        }
+        finally{
+            unlockHtmlPage( lockedHtmlPage, resourcePath );
         }
     }
 
@@ -264,15 +267,20 @@ public class ClientHandler implements Runnable
      * @param lockedHtmlPage If the html page was locked. This means that the resource wanted for the request was a html page
      *                       and not anything else (e.g. favicon.ico)
      * @param resourcePath The path of the resource that was locked
-     * @throws InterruptedException If the thread that responds the request is interrupted
      */
-    private void unlockHtmlPage ( boolean lockedHtmlPage, Path resourcePath ) throws InterruptedException
+    private void unlockHtmlPage ( boolean lockedHtmlPage, Path resourcePath )
     {
-        if ( lockedHtmlPage )
+        try {
+            if ( lockedHtmlPage )
+                Thread.sleep( MILLISECONDS_TO_WAIT );
+        }
+        catch( InterruptedException e )
         {
-            //Thread.sleep for testing threads
-            Thread.sleep( MILLISECONDS_TO_WAIT );
-            lockFiles.unlock( resourcePath );
+            e.printStackTrace( );
+        }
+        finally {
+            if( lockedHtmlPage )
+                lockFiles.unlock( resourcePath );
         }
     }
     /**
