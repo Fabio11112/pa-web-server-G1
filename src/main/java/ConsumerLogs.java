@@ -35,7 +35,7 @@ public class ConsumerLogs implements Runnable{
     /**
      * Method that will consume the logs from the buffer and write them to the log file
      */
-    private void consumeLogs( ) {
+    protected void consumeLogs( ) {
         try {
             while ( true ) {
                 Path path;
@@ -47,17 +47,12 @@ public class ConsumerLogs implements Runnable{
 
                 try( FileWriter writer = new FileWriter( file, true ) ) {
                     if ( itemsAvailable.tryAcquire( 5, TimeUnit.SECONDS ) ) {
-                        try {
-                            bufferLock.lock( );
-                            if ( !buffer.isEmpty( ) ) {
-                                Log log = buffer.remove( 0 );
-                                writer.write( log.toString( )+"\n" );
-                                writer.flush( );
-                            }
-                        } finally {
-                            bufferLock.unlock( );
+                        bufferLock.lock( );
+                        if ( !buffer.isEmpty( ) ) {
+                            Log log = buffer.remove( 0 );
+                            writer.write( log.toString( )+"\n" );
+                            writer.flush( );
                         }
-
                     }
                 }
 
@@ -68,7 +63,8 @@ public class ConsumerLogs implements Runnable{
         } catch ( IOException e ) //writer.write(log.toString());
         {
             e.printStackTrace( );
-
+        } finally {
+            bufferLock.unlock();
         }
     }
 
