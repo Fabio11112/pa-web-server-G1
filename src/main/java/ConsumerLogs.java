@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -57,13 +58,13 @@ public class ConsumerLogs implements Runnable{
                 }
 
             }
-        } catch ( InterruptedException e ) //itemsAvailable.tryAcquire
+        }
+        catch ( InterruptedException | IOException e) //itemsAvailable.tryAcquire
         {
             e.printStackTrace( );
-        } catch ( IOException e ) //writer.write(log.toString());
+        }
+        finally
         {
-            e.printStackTrace( );
-        } finally {
             bufferLock.unlock();
         }
     }

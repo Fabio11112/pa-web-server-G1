@@ -4,8 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConsumerLogsTest {
@@ -104,8 +102,9 @@ class ConsumerLogsTest {
 
     @Test
     void testLockReleasedEvenOnException() throws Exception {
-        // Arrange
-        Path logFile = tempDir.resolve("invalid_dir/test.log"); // Will cause IOException
+
+        //Use of Paths instead of tempDir so it is actually an invalid path
+        Path logFile = Paths.get("invalid/invalidPath.html");
         ArrayList<Log> buffer = new ArrayList<>();
         buffer.add(new Log("PUT", Path.of("/resource"), "172.16.0.1", 204));
         FakeLock fakeLock = new FakeLock();
@@ -116,8 +115,6 @@ class ConsumerLogsTest {
         Thread consumerThread = new Thread(consumer);
         consumerThread.start();
 
-        fakeSemaphore.release(); // Allow consumer to proceed
-
         Thread.sleep(100);
 
         // Clean shutdown
@@ -125,7 +122,7 @@ class ConsumerLogsTest {
         consumerThread.join(1000);
 
         // Assert
-        assertFalse(fakeLock.isLocked, "Lock should be released even if write fails");
-        assertEquals(2, fakeSemaphore.items, "Semaphore should not be released when in exception");
+        assertFalse(fakeLock.getIsLocked(), "Lock should be released even if write fails");
+        assertEquals(2, fakeSemaphore.getItems(), "Semaphore should not be released when in exception");
     }
 }

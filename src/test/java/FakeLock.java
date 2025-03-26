@@ -5,7 +5,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
 class FakeLock implements Lock {
-    public boolean isLocked = false;
+    private boolean isLocked = false;
 
     @Override
     public void lock() { isLocked = true; }
@@ -31,5 +31,9 @@ class FakeLock implements Lock {
     @Override
     public void lockInterruptibly(){
         throw new UnsupportedOperationException("Not needed for tests");
+    }
+
+    public boolean getIsLocked() {
+        return isLocked;
     }
 }

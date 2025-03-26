@@ -2,7 +2,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 class FakeSemaphore extends Semaphore {
-    public int items;
+    private int items;
 
     public FakeSemaphore(int items) {
         super(0);
@@ -23,5 +23,6 @@ class FakeSemaphore extends Semaphore {
         ++items;
     }
 
+    public int getItems() { return items; }
     // No need to override other methods
 }
