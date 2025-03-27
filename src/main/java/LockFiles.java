@@ -21,7 +21,7 @@ public class LockFiles {
      * Constructor for the LockFiles class
      * @param extension The extension that will be checked
      */
-    public LockFiles( String extension, String directoryPath ) {
+    public LockFiles(String extension, String directoryPath ) {
         this.extension = extension;
         createLocks( directoryPath );
     }
@@ -116,6 +116,9 @@ public class LockFiles {
         return map.get( path );
     }
 
+    public ConcurrentHashMap<Path, Lock> getMap() {
+        return map;
+    }
 
     @Override
     public String toString( )

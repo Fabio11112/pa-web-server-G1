@@ -62,24 +62,29 @@ public class ClientHandler implements Runnable
      * @return tokens of the BufferedReader
      * @throws IOException When the BufferedReader is invalid
      */
-    private String[] getTokens( BufferedReader br ) throws IOException
+    protected String[] getTokens(BufferedReader br) throws IOException
     {
-        StringBuilder requestBuilder = new StringBuilder( );
-        String line;
-        while ( !( line = br.readLine( ) ).isBlank( ) )
-        {
-            requestBuilder.append( line ).append( "\r\n" );
-        }
+        try {
+            StringBuilder requestBuilder = new StringBuilder();
+            String line;
+            while (!(line = br.readLine()).isBlank()) {
+                requestBuilder.append(line).append("\r\n");
+            }
 
-        String request = requestBuilder.toString( );
-        String[] tokens = request.split( " " );
-        if ( tokens.length < 2 )
+            String request = requestBuilder.toString();
+            String[] tokens = request.split(" ");
+            if (tokens.length < 2) {
+                System.err.println("Invalid request received.");
+                return null;
+            }
+
+            return tokens;
+        }
+        catch(NullPointerException e)
         {
-            System.err.println( "Invalid request received." );
+            e.printStackTrace();
             return null;
         }
-
-        return tokens;
     }
 
     /**
@@ -96,9 +101,12 @@ public class ClientHandler implements Runnable
         boolean lockedHtmlPage = false;
         Path resourcePath = null;
 
+
+
         try( BufferedReader br = new BufferedReader( new InputStreamReader( client.getInputStream( ) ) );
             OutputStream clientOutput = client.getOutputStream( ) )
         {
+            System.out.println("InputStream: " + client.getInputStream());
 
             logClientConnection( );
             routePath = getRoutePath( br );
@@ -166,6 +174,8 @@ public class ClientHandler implements Runnable
             // Send response body
             clientOutput.write( content );
             clientOutput.write( "\r\n\r\n".getBytes( ) );
+
+            System.out.println("ClientOutput:\n" + clientOutput);
             clientOutput.flush( );
             client.close( );
         }
@@ -217,7 +227,7 @@ public class ClientHandler implements Runnable
      *
      * @param path The path of the page requested by the client. Or the 404 file if it does not exist
      */
-    private Path Routing ( Path path ) {
+    protected Path Routing ( Path path ) {
         try
         {
             if( !Files.exists( path ) )

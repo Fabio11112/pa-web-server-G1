@@ -16,7 +16,7 @@ class ConsumerLogsTest {
         Path logFile = tempDir.resolve("test.log");
         ArrayList<Log> buffer = new ArrayList<>();
         FakeLock fakeLock = new FakeLock();
-        FakeSemaphore fakeSemaphore = new FakeSemaphore(1); // Allow acquisition
+        FakeSemaphore fakeSemaphore = new FakeSemaphore(0); // Allow acquisition
 
         Log testLog = new Log("GET", Path.of("/api/data"), "192.168.1.1", 200);
         buffer.add(testLog);
