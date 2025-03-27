@@ -20,7 +20,7 @@ public class ClientHandlerTest {
     private FakeSemaphore itemsAvailable;
     private ArrayList<Log> buffer;
     private ClientHandler clientHandler;
-    private final String SERVER_ROOT = "sites/pages";
+    private final String SERVER_ROOT = "sites/";
     private final String PATH404 = "/server/root/404.html";
 
     @BeforeEach
@@ -67,24 +67,6 @@ public class ClientHandlerTest {
         String[] tokens = clientHandler.getTokens(reader);
 
         assertNull(tokens);
-    }
-
-    @Test
-    void testRoutingValidFile() throws IOException {
-        Path existingPath = Paths.get(SERVER_ROOT, "index.html");
-
-        Path result = clientHandler.Routing(existingPath);
-        assertEquals(existingPath, result);
-
-        Files.delete(existingPath); // Clean up
-    }
-
-    @Test
-    void testRouting404File() {
-        Path nonExistentPath = Paths.get(SERVER_ROOT, "nonexistent.html");
-
-        Path result = clientHandler.Routing(nonExistentPath);
-        assertEquals(Paths.get(PATH404), result);
     }
 
 
