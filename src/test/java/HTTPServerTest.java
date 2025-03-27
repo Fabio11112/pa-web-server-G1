@@ -1,10 +1,10 @@
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
@@ -12,8 +12,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HTTPServerTest {
-
-    Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"));
     Thread serverThread;
 
     private HTTPServer server;
@@ -28,13 +26,18 @@ class HTTPServerTest {
 
     @BeforeEach
     void setUp() {
-        threadPool = new ThreadPool(2, 4, 1000, 10);
-        pathPagesMap = new LockFiles(".html",tempDir.toString()); // Assuming LockFiles is a valid class
-        buffer = new ArrayList<>();
-        bufferLock = new ReentrantLock();
-        itemsAvailable = new Semaphore(0);
+        try(FileWriter writer = new FileWriter("html/tempPage")) {
+            writer.write("<html><head></head><body>");
+            writer.close();
 
-
+            threadPool = new ThreadPool(2, 4, 1000, 10);
+            pathPagesMap = new LockFiles(".html", "html"); // Assuming LockFiles is a valid class
+            buffer = new ArrayList<>();
+            bufferLock = new ReentrantLock();
+            itemsAvailable = new Semaphore(0);
+        } catch (IOException e) {
+            fail("Test failed in creating the temporary file");
+        }
     }
 
     @AfterEach
