@@ -106,12 +106,11 @@ public class ClientHandler implements Runnable
         try( BufferedReader br = new BufferedReader( new InputStreamReader( client.getInputStream( ) ) );
             OutputStream clientOutput = client.getOutputStream( ) )
         {
-            System.out.println("InputStream: " + client.getInputStream());
 
             logClientConnection( );
             routePath = getRoutePath( br );
 
-            System.out.println( "Route: " + routePath );
+            System.out.println( "Route inserted: " + routePath );
             resourcePath = Paths.get( routePath );
             resourcePath = Routing( resourcePath );
             content = readBinaryFile( resourcePath.toString( ) );
@@ -175,7 +174,6 @@ public class ClientHandler implements Runnable
             clientOutput.write( content );
             clientOutput.write( "\r\n\r\n".getBytes( ) );
 
-            System.out.println("ClientOutput:\n" + clientOutput);
             clientOutput.flush( );
             client.close( );
         }
