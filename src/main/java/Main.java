@@ -13,7 +13,7 @@ public class Main {
      * @param args The arguments of the program
      */
     public static void main( String[] args ) {
-        String configPath = "/server.config.example";
+        String configPath = "server.config.example";
 
         ServerConfigLoader configs = new ServerConfigLoader( configPath );
 

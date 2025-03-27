@@ -1,8 +1,8 @@
-directory=sites
+directory=html
 port=8888
 extension=html
 logPath=log/logs.txt
-path404=sites/404.html
+path404=html/404.html
 corePoolSize=5
 maximumPoolSize=5
 keepAliveTime=5000
