@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -35,7 +36,7 @@ public class ConsumerLogs implements Runnable{
     /**
      * Method that will consume the logs from the buffer and write them to the log file
      */
-    private void consumeLogs( ) {
+    protected void consumeLogs( ) {
         try {
             while ( true ) {
                 Path path;
@@ -47,28 +48,24 @@ public class ConsumerLogs implements Runnable{
 
                 try( FileWriter writer = new FileWriter( file, true ) ) {
                     if ( itemsAvailable.tryAcquire( 5, TimeUnit.SECONDS ) ) {
-                        try {
-                            bufferLock.lock( );
-                            if ( !buffer.isEmpty( ) ) {
-                                Log log = buffer.remove( 0 );
-                                writer.write( log.toString( )+"\n" );
-                                writer.flush( );
-                            }
-                        } finally {
-                            bufferLock.unlock( );
+                        bufferLock.lock( );
+                        if ( !buffer.isEmpty( ) ) {
+                            Log log = buffer.remove( 0 );
+                            writer.write( log.toString( )+"\n" );
+                            writer.flush( );
                         }
-
                     }
                 }
 
             }
-        } catch ( InterruptedException e ) //itemsAvailable.tryAcquire
+        }
+        catch ( InterruptedException | IOException e) //itemsAvailable.tryAcquire
         {
             e.printStackTrace( );
-        } catch ( IOException e ) //writer.write(log.toString());
+        }
+        finally
         {
-            e.printStackTrace( );
-
+            bufferLock.unlock();
         }
     }
 

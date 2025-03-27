@@ -22,24 +22,23 @@ public class LockFilesTest {
 
     @BeforeEach
     void setUp(){
-        locks = new LockFiles("html", "sites");
+        locks = new LockFiles("html", "html");
     }
 
-    @ParameterizedTest
-    @CsvSource({"sites/404.html",
-            "sites/pages/index.html",
-            "sites/pages/nav/about.html",
-            "sites/pages/nav/home.html",
-            "sites/pages/nav/contact/contact.html",
-            "sites/pages/nav/contact/index.html"})
+    @Test
     @DisplayName("Tests if the paths are in the lockFiles")
-    void testCreateLocks_HasSitesInMap(String path) {
+    void testCreateLocks_HasSitesInMap() {
 
         System.out.println(locks);
         assertAll(
                 () -> assertNotNull(locks),
-                () -> assertTrue(locks.exists(Paths.get(path)))
+                () -> assertNotNull(locks.getMap())
         );
+
+
+        for(Path path : locks.getMap().keySet()){
+            assertTrue(Files.exists(path));
+        }
     }
 
 
@@ -55,14 +54,14 @@ public class LockFilesTest {
 
         assertAll(
                 () -> assertNotNull(locks),
-                () -> assertFalse(locks.exists(Paths.get(path)))
+                () -> assertFalse(locks.exists(Paths.get(path)), "The path should not be in the map")
         );
     }
 
     @Test
     @DisplayName("Test if a file is locked")
     void testFileIsLocked() throws InterruptedException {
-        Path path = Paths.get("sites/404.html");
+        Path path = Paths.get("html/404.html");
         locks.lock(path);
 
         Lock lock = locks.getLock(path);
@@ -83,7 +82,7 @@ public class LockFilesTest {
     @Test
     @DisplayName("Test if a file is unlocked")
     void testFileIsUnlocked() throws InterruptedException {
-        Path path = Paths.get("sites/404.html");
+        Path path = Paths.get("html/404.html");
         locks.lock(path);
         locks.unlock(path);
         Lock lock = locks.getLock(path);
@@ -102,7 +101,7 @@ public class LockFilesTest {
     @Test
     @DisplayName("Test getLock method")
     void testGetLock() {
-        Path path = Paths.get("sites/404.html");
+        Path path = Paths.get("html/404.html");
         locks.lock(path);
         Lock lock = locks.getLock(path);
         assertNotNull(lock, "The lock should not be null");

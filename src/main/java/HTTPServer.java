@@ -10,7 +10,7 @@ import java.util.concurrent.locks.Lock;
  * A simple HTTP server that listens on a specified port.
  * It serves files from a predefined server root directory.
  */
-public class MainHTTPServer {
+public class HTTPServer {
     private final LockFiles pathPagesMap;
     private final String SERVER_ROOT;
     private final String PATH404;// Define by user
@@ -31,7 +31,7 @@ public class MainHTTPServer {
      * @param bufferLock The lock that will be used to lock the buffer
      * @param itemsAvailable The semaphore that will be used to signal that there are items available in the buffer
      */
-    public MainHTTPServer( int port,
+    public HTTPServer( int port,
                           ThreadPool pool,
                           String SERVER_ROOT,
                           String PATH404,

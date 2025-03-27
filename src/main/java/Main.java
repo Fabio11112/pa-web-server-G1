@@ -1,3 +1,4 @@
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
@@ -13,7 +14,7 @@ public class Main {
      * @param args The arguments of the program
      */
     public static void main( String[] args ) {
-        String configPath = "configuration/server.config.example";
+        String configPath = "server.config.example";
 
         ServerConfigLoader configs = new ServerConfigLoader( configPath );
 
@@ -28,7 +29,7 @@ public class Main {
         LockFiles lockFiles = new LockFiles( configs.getExtension( ), configs.getDirectory( ) );
 
         ThreadPool pool = new ThreadPool( configs.getCorePoolSize( ), configs.getMaxPoolSize( ), configs.getKeepAliveTime( ), configs.getMaxQueueThreadSize( ) );
-        MainHTTPServer server = new MainHTTPServer( configs.getPort( ), pool, configs.getDirectory( ), configs.getPath404 ( ), lockFiles, buffer, bufferLock, semaphore );
+        HTTPServer server = new HTTPServer( configs.getPort( ), pool, configs.getDirectory( ), configs.getPath404 ( ), lockFiles, buffer, bufferLock, semaphore );
 
         server.startServer( );
 
