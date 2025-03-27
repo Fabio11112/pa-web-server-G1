@@ -106,6 +106,7 @@ class HTTPServerTest {
                 serverThread.join();
             }
         } catch (IOException | InterruptedException ignored) {
+            System.out.println("Server did not stop correctly.");
         }
     }
 
