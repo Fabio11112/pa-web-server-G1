@@ -11,12 +11,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MainHTTPServerTest {
+class HTTPServerTest {
 
     Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"));
     Thread serverThread;
 
-    private MainHTTPServer server;
+    private HTTPServer server;
     private ThreadPool threadPool;
     private LockFiles pathPagesMap;
     private ArrayList<Log> buffer;
@@ -53,7 +53,7 @@ class MainHTTPServerTest {
     @Test
     void testServerStarts() {
         port = 8080;
-        server = new MainHTTPServer(port, threadPool, SERVER_ROOT, PATH404, pathPagesMap, buffer, bufferLock, itemsAvailable);
+        server = new HTTPServer(port, threadPool, SERVER_ROOT, PATH404, pathPagesMap, buffer, bufferLock, itemsAvailable);
         Thread serverThread = new Thread(() -> server.startServer());
         serverThread.start();
 
@@ -72,7 +72,7 @@ class MainHTTPServerTest {
     @Test
     void testServerHandlesMultipleConnections() {
         port = 8081;
-        server = new MainHTTPServer(port, threadPool, SERVER_ROOT, PATH404, pathPagesMap, buffer, bufferLock, itemsAvailable);
+        server = new HTTPServer(port, threadPool, SERVER_ROOT, PATH404, pathPagesMap, buffer, bufferLock, itemsAvailable);
 
         Thread serverThread = new Thread(() -> server.startServer());
         serverThread.start();

@@ -28,7 +28,7 @@ public class Main {
         LockFiles lockFiles = new LockFiles( configs.getExtension( ), configs.getDirectory( ) );
 
         ThreadPool pool = new ThreadPool( configs.getCorePoolSize( ), configs.getMaxPoolSize( ), configs.getKeepAliveTime( ), configs.getMaxQueueThreadSize( ) );
-        MainHTTPServer server = new MainHTTPServer( configs.getPort( ), pool, configs.getDirectory( ), configs.getPath404 ( ), lockFiles, buffer, bufferLock, semaphore );
+        HTTPServer server = new HTTPServer( configs.getPort( ), pool, configs.getDirectory( ), configs.getPath404 ( ), lockFiles, buffer, bufferLock, semaphore );
 
         server.startServer( );
 
