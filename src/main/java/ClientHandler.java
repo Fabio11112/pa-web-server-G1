@@ -122,8 +122,7 @@ public class ClientHandler implements Runnable
 
             flushRequest( clientOutput, content );
 
-
-            int response = resourcePath.toString( ).equals( PATH404 ) ? RESPONSE_NOT_FOUND : RESPONSE_OK;
+            int response = resourcePath.equals( Paths.get( PATH404 ) ) ? RESPONSE_NOT_FOUND : RESPONSE_OK;
             sendLog( "GET", resourcePath, client.toString( ), response );
 
         }
