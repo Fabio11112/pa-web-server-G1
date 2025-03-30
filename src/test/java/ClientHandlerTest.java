@@ -9,6 +9,7 @@ import java.util.concurrent.locks.Lock;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class ClientHandlerTest {
@@ -48,6 +49,7 @@ public class ClientHandlerTest {
     }
 
     @Test
+    @DisplayName("Should return a valid path for a valid request")
     void testGetTokensValidRequest() throws IOException {
         String request = "GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
         BufferedReader reader = new BufferedReader(new StringReader(request));
