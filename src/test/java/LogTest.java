@@ -1,4 +1,4 @@
-
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -13,6 +13,7 @@ public class LogTest {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Test
+    @DisplayName("Test Log constructor and getters")
     void testConstructorAndGetters() {
         // Arrange
         String method = "GET";
@@ -38,6 +39,7 @@ public class LogTest {
     }
 
     @Test
+    @DisplayName("Test Log toString format")
     void testToStringFormat() {
         // Arrange
         String method = "POST";

@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -6,14 +7,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ServerConfigLoaderTest {
     @TempDir
     Path tempDir;
 
     @Test
-    void testEmptyConfigFile() throws IOException {
+    @DisplayName("Should load config from file")
+    void testLoadingConfigFile() throws IOException {
         String configContent = """
             port=8080
             corePoolSize=5

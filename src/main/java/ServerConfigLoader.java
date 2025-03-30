@@ -1,13 +1,15 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 
+/**
+ * It represents the loader of the server configuration file.
+ */
 public class ServerConfigLoader {
 
     private String directory;
     private String path404;
     private String extension;
     private String logPath;
-
     private int port;
     private int corePoolSize;
     private int maxPoolSize;

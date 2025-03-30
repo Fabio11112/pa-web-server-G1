@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,6 +29,7 @@ class ThreadPoolTest {
     }
 
     @Test
+    @DisplayName("Test if the thread pool is initialized correctly")
     void testTaskExecution() throws InterruptedException {
         AtomicBoolean taskExecuted = new AtomicBoolean(false);
 
@@ -41,6 +43,7 @@ class ThreadPoolTest {
     }
 
     @Test
+    @DisplayName("Test if multiple tasks can be executed")
     void testMultipleTasksExecution() throws InterruptedException {
         AtomicBoolean task1Executed = new AtomicBoolean(false);
         AtomicBoolean task2Executed = new AtomicBoolean(false);
@@ -58,6 +61,7 @@ class ThreadPoolTest {
     }
 
     @Test
+    @DisplayName("Test if the thread pool is shut down correctly")
     void testShutdownBehavior() {
         threadPool.shutdown();
         assertTrue(threadPool.isShutdown(), "ThreadPool should be shut down.");
