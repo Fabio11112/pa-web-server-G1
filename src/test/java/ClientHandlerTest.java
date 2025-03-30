@@ -1,11 +1,7 @@
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.Lock;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,6 +58,7 @@ public class ClientHandlerTest {
     }
 
     @Test
+    @DisplayName("Should return null for an invalid request")
     void testGetTokensInvalidRequest() throws IOException {
         String request = "GET /invalid HTTP/1.1\r\nHost: localhost\r\n";
         BufferedReader reader = new BufferedReader(new StringReader(request));

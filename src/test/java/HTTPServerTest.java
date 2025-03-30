@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
@@ -54,6 +55,7 @@ class HTTPServerTest {
 
 
     @Test
+    @DisplayName("Test if the server starts correctly")
     void testServerStarts() {
         port = 8080;
         server = new HTTPServer(port, threadPool, SERVER_ROOT, PATH404, pathPagesMap, buffer, bufferLock, itemsAvailable);
@@ -73,6 +75,7 @@ class HTTPServerTest {
     }
 
     @Test
+    @DisplayName("Test if the server handles multiple connections correctly")
     void testServerHandlesMultipleConnections() {
         port = 8081;
         server = new HTTPServer(port, threadPool, SERVER_ROOT, PATH404, pathPagesMap, buffer, bufferLock, itemsAvailable);

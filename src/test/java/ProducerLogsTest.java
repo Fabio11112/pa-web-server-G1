@@ -1,12 +1,9 @@
-
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.Lock;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,6 +23,7 @@ class ProducerLogsTest {
 
 
     @Test
+    @DisplayName("Should add log to buffer and signal semaphore")
     public void testProduceLogs_addsLogToBuffer() {
 
         bufferLock = new FakeLock();
@@ -39,6 +37,7 @@ class ProducerLogsTest {
     }
 
     @Test
+    @DisplayName("Should handle exception realising the lock when adding log to buffer")
     public void testProduceLogs_lockIsReleasedAfterException() {
         FakeLock bufferLock = new FakeLock(){
             @Override

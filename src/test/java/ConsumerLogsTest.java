@@ -1,4 +1,5 @@
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +12,7 @@ class ConsumerLogsTest {
     Path tempDir = Paths.get(System.getProperty("java.io.tmpdir"));
 
     @Test
+    @DisplayName("Should consume from buffer and write to file")
     void testConsumeLogs_WritesToFile() throws Exception {
         // Arrange
         Path logFile = tempDir.resolve("test.log");
@@ -45,6 +47,7 @@ class ConsumerLogsTest {
     }
 
     @Test
+    @DisplayName("Should not create file if buffer is empty")
     void testConsumeLogs_EmptyBuffer() throws Exception {
         // Arrange
         Path logFile = tempDir.resolve("empty.log");
@@ -71,6 +74,7 @@ class ConsumerLogsTest {
     }
 
     @Test
+    @DisplayName("Should not create file if buffer is empty and semaphore is 0")
     void testConsumeLogs_SemaphoreBlocks() throws Exception {
         // Arrange
         Path logFile = tempDir.resolve("blocked.log");
@@ -101,6 +105,7 @@ class ConsumerLogsTest {
     }
 
     @Test
+    @DisplayName("Should release lock even if write fails")
     void testLockReleasedEvenOnException() throws Exception {
 
         //Use of Paths instead of tempDir so it is actually an invalid path
