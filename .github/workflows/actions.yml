@@ -3,10 +3,10 @@ name: Build documentation and checks coverage
 on: #quando é que estas Actions irão correr!
   pull_request:
     branches:
-      - main
+      - final
   push:
     branches:
-      - main
+      - final
 
 jobs:
   docs-coverage:
