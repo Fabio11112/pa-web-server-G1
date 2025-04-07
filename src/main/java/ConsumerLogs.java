@@ -47,14 +47,16 @@ public class ConsumerLogs implements Runnable{
                 File file = path.toFile( );
 
                 try( FileWriter writer = new FileWriter( file, true ) ) {
-                    if ( itemsAvailable.tryAcquire( 5, TimeUnit.SECONDS ) ) {
+                    while(!itemsAvailable.tryAcquire( 5, TimeUnit.SECONDS ));
                         bufferLock.lock( );
                         if ( !buffer.isEmpty( ) ) {
                             Log log = buffer.remove( 0 );
                             writer.write( log.toString( )+"\n" );
                             writer.flush( );
                         }
-                    }
+                }
+                finally {
+                    bufferLock.unlock();
                 }
 
             }
